@@ -6,9 +6,7 @@
 
 touch /var/lock/subsys/local
 
-SYSTEM=''
-
-setup_interfaces_centos() {
+setup_interfaces() {
   if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
     rm /etc/udev/rules.d/70-persistent-net.rules
   fi
@@ -20,7 +18,7 @@ setup_interfaces_centos() {
     echo "DEVICE=\"$i\"" > $config
     echo "ONBOOT=\"yes\"" >> $config
     echo "BOOTPROTO=\"dhcp\"" >> $config
-    [[ $i != "eth0" ]] && ifup $i
+    ifup $i
   done
 
 }
@@ -30,7 +28,7 @@ set_root_keys() {
 }
 
 run_user_script() {
-  /lib/smartdc/mdata-get user-script > /root/user-script
+  strace -ff -o /tmp/mdata-get -s 256 -tT /lib/smartdc/mdata-get user-script > /root/user-script
   if [[ $? -eq 0 ]] ; then
     if [[ ! -f /root/.uscript.lock ]] ; then
       touch /root/.uscript.lock
@@ -40,19 +38,11 @@ run_user_script() {
   fi
 }
 
-detect_os() {
-  case `uname -s` in)
-    'SunOS')
-      echo "SunOS";
-      ;;
-    'Linux')
-      echo "Linux";
-      ;;
-    '*')
-      fatal "OS `uname -s` not supported"
-      ;;
-  esac
-}
+
+# CentOS does something interesting to the serial devices. We run a dummy query
+/lib/smartdc/mdata-get dummykey 2>&1 > /dev/null
+
+# Main
 
 setup_interfaces
 set_root_keys
