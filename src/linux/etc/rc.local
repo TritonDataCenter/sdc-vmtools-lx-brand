@@ -27,18 +27,6 @@ setup_interfaces_redhat() {
 
 }
 
-set_root_keys() {
-  out=$(/lib/smartdc/set-root-authorized-keys)
-}
-
-run_user_script() {
-  out=$(/lib/smartdc/run-user-script)
-}
-
-format_secondary_disk() {
-  out=$(/lib/smartdc/format-secondary-disk)
-}
-
 # rhel and derivatives (centos, etc)
 setup_redhat() {
   # CentOS does something interesting to the serial devices. We run a dummy query
@@ -46,35 +34,18 @@ setup_redhat() {
   setup_interfaces_redhat
 }
 
-# applies to ubuntu
-setup_debian() {
-  echo > /dev/null # do nothing
-}
-
+## MAIN ##
 # applies to all operating systems and flavours
-setup_generic() {
-  format_secondary_disk
-  case `uname -s` in
-    Linux)
-      if [ -e /etc/redhat-release ] ; then
-        setup_redhat
-      elif [ -e /etc/debian_version ] ; then
-        setup_debian
-      fi
-      ;;
-    *)
-      echo "OS specific features not implemented"
-      ;;
-  esac
-  set_root_keys
-  run_user_script
-}
-
-# Main
-if [ -f /var/lock/rclocal ] ; then
-  fatal "Looks like another rc.local is already running"
-fi
-  
-touch /var/lock/rclocal
-setup_generic
-rm /var/lock/rclocal
+$(/lib/smartdc/format-secondary-disk)
+case `uname -s` in
+  Linux)
+    if [ -e /etc/redhat-release ] ; then
+      setup_redhat
+    fi
+    ;;
+  *)
+    echo "OS specific features not implemented"
+    ;;
+esac
+$(/lib/smartdc/set-root-authorized_keys)
+$(/lib/smartdc/run-user-script)

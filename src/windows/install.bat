@@ -7,8 +7,9 @@ TITLE SmartDC Tools - Install
 cd %~dp0
 
 CLS
+ECHO ------------------------------------------------------------
 ECHO SmartDC Tools - Install
-ECHO =======================================================
+ECHO ------------------------------------------------------------
 ECHO 
 ECHO This tool will install the tools and drivers necessary
 ECHO to run Windows in a SmartDC or SmartOS environment

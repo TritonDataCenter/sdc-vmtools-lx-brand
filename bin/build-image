@@ -5,62 +5,51 @@
 set -o errexit
 set -o pipefail
 
+timestamp=`date +%Y%m%d%H%M%S`
+
 fatal() {
   printf "$(basename $0): fatal error: $*\n"
   exit 1
 }
 
-check_uname() {
+create_layout() {
+  echo "==> Copying files and creating layout"
+  [[ ! -d cache/sdc-vm-tools ]] && mkdir cache/sdc-vm-tools
+  cp -r layout/* cache/sdc-vm-tools/
+  cp -r src/windows cache/sdc-vm-tools/
+  cp -r src/linux cache/sdc-vm-tools/
+}
+
+pack_tar() {
+  echo "==> Creating tarball"
+  cd cache
+  tar -czf sdc-vm-tools-$timestamp.tar.gz sdc-vm-tools
+  cd ../
+}
+
+pack_iso() {
+  echo "==> Creating ISO"
+  cd cache
   case `uname -s` in
     Darwin)
+      hdiutil makehybrid -default-volume-name "SDC Guest Tools" -iso -joliet \
+        -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
       ;;
     SunOS)
+      echo "Skipping - I cant find a mkisofs tool!"
       ;;
     *)
       fatal "Not a supported Operating system. Try it on OSX or SmartOS"
       ;;
   esac
+  cd ../
 }
 
-# check out all repositories we need to copy files from
-get_latest() {
-  echo "==> Getting latest files from git repositories"
-  repositories=(vmadm windows)
-  for i in ${repositories[@]} ; do 
-    if [[ -d cache/$i/.git ]] ; then
-      cd cache/$i
-      git pull --rebase
-      cd ../../
-    else
-      git clone git@git.joyent.com:$i.git cache/$i
-    fi
-  done
-}
-
-# copies the latest bits into the ISO layout
-copy_latest() {
-  echo "==> Copying files into layout"
-  target=cache/iso/windows/
-  files=(cache/windows/README.md cache/windows/lib cache/windows/bin \
-    cache/windows/sysprep cache/windows/drivers cache/windows/install.bat)
-  for i in ${files[@]} ; do
-    if [[ -e ${i} ]] ; then
-      cp -r ${i} $target
-    else
-      fatal "File '${i}' was not found"
-    fi
-  done
-}
-
-pack_iso() {
-  echo "==> Creating ISO"
-}
 # ensure we're always in the right working directory
 cd $(dirname $0)/../
 echo "==> Starting ISO build"
-check_uname
-get_latest
-copy_latest
+create_layout
 pack_iso
+pack_tar
 echo "==> DONE"
 exit 0
