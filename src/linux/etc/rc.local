@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+
+fatal() {
+  printf "%s\n" "$@"
+  exit 1
+}
+
+setup_interfaces_redhat() {
+  if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
+    rm -f /etc/udev/rules.d/70-persistent-net.rules
+  fi
+  
+  interfaces=$(ifconfig -a | grep ^eth | awk '{print $1}')
+  
+  for i in ${interfaces[@]} ; do
+    config=/etc/sysconfig/network-scripts/ifcfg-$i
+    echo "DEVICE=\"$i\"" > $config
+    echo "ONBOOT=\"yes\"" >> $config
+    echo "BOOTPROTO=\"dhcp\"" >> $config
+    ifup $i
+  done
+
+}
+
+set_root_keys() {
+  out=$(/lib/smartdc/set-root-authorized-keys)
+}
+
+run_user_script() {
+  /lib/smartdc/mdata-get user-script > /root/user-script
+  if [[ $? -eq 0 ]] ; then
+    if [[ ! -f /root/.uscript.lock ]] ; then
+      touch /root/.uscript.lock
+      chmod +x /root/user-script
+      /root/user-script
+    fi
+  fi
+}
+
+format_secondary_disk() {
+  out=$(/lib/smartdc/format-secondary-disk)
+}
+
+# rhel and derivatives (centos, etc)
+setup_redhat() {
+  # CentOS does something interesting to the serial devices. We run a dummy query
+  /lib/smartdc/mdata-get dummykey 2>&1 > /dev/null
+  setup_interfaces_redhat
+}
+
+# applies to ubuntu
+setup_debian() {
+  echo > /dev/null # do nothing
+}
+
+# applies to all operating systems and flavours
+setup_generic() {
+  format_secondary_disk
+  case `uname -s` in
+    Linux)
+      if [ -e /etc/redhat-release ] ; then
+        setup_redhat
+      elif [ -e /etc/debian_version ] ; then
+        setup_debian
+      fi
+      ;;
+    *)
+      echo "OS specific features not implemented"
+      ;;
+  esac
+  set_root_keys
+  run_user_script
+}
+
+# Main
+if [ -f /var/lock/rclocal ] ; then
+  fatal "Looks like another rc.local is already running"
+fi
+  
+touch /var/lock/rclocal
+setup_generic
+rm /var/lock/rclocal

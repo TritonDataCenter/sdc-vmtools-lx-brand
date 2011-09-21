@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Copyright 2011, Joyent Inc. All rights reserved
+# formats the secondary disk
+
+fatal() {
+  printf "fatal: %s\n" "$@"
+  exit 1;
+}
+
+SFDISK=`which sfdisk 2> /dev/null`
+
+if [[ ! -e /dev/vdb ]] ; then
+ fatal "Secondary disk '/dev/vdb' not found. Exiting"
+fi
+
+if [[ -z $SFDISK ]] ; then
+  fatal "sfdisk binary not found. Exiting"
+fi
+
+## Sanity check
+partexists=$(sfdisk -l /dev/vdb | grep vdb1 | awk '{print $8}')
+if [ "$partexists" != "" ] ; then
+  printf "Partition table already exists. Skipping\n"
+  exit 0
+fi
+
+# Otherwise we're creating the partition, formatting it, and mounting it
+echo "Creating partition..."
+echo "0,,L,*" | sfdisk /dev/vdb 2>&1 > /dev/null
+
+echo "Creating ext4 filesystem..."
+mkfs.ext4 /dev/vdb1 2>&1 > /dev/null
+
+fsentry=$(grep '/dev/vdb1' /etc/fstab)
+if [[ -z $fsentry ]] ; then
+  echo "Adding fstab entry..."
+  [[ ! -e /data ]] && mkdir /data
+  printf "/dev/vdb1\t\t/data\t\t\text4\tdefaults\t0 0\n" >> /etc/fstab
+  mount /data
+fi
+echo "Done"
