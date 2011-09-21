@@ -20,6 +20,10 @@ endif
 RESTDOWN = restdown
 
 clean:
-	$(echo "Cleaning")
+	@echo "Cleaning"
+	rm -fr cache
 
-.PHONY: clean
+all:
+	bin/build-image
+
+.PHONY: clean iso tar all

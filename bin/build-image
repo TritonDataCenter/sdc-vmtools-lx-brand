@@ -14,6 +14,7 @@ fatal() {
 
 create_layout() {
   echo "==> Copying files and creating layout"
+  [[ ! -d cache ]] && mkdir cache
   [[ ! -d cache/sdc-vm-tools ]] && mkdir cache/sdc-vm-tools
   cp -r layout/* cache/sdc-vm-tools/
   cp -r src/windows cache/sdc-vm-tools/
