@@ -47,5 +47,7 @@ case `uname -s` in
     echo "OS specific features not implemented"
     ;;
 esac
-$(/lib/smartdc/set-root-authorized_keys)
+$(/lib/smartdc/set-root-authorized-keys)
 $(/lib/smartdc/run-user-script)
+
+touch /var/lock/subsys/local
