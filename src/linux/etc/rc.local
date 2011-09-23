@@ -48,7 +48,7 @@ case `uname -s` in
     ;;
 esac
 
-$(/lib/smartdc/set-root-authorized-keys)
-$(/lib/smartdc/run-user-script)
+(/lib/smartdc/set-root-authorized-keys)
+(/lib/smartdc/run-user-script)
 
 touch /var/lock/subsys/local
