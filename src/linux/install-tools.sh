@@ -5,11 +5,6 @@ fatal() {
   exit 1
 }
 
-install() {
-  cp -r ./lib/smartdc /lib/
-}
-
-
 print_prompt() {
   echo "--------------------------------------------------------------------"
   echo " SDC VM Guest Tools - Install (Linux)"
@@ -27,6 +22,7 @@ print_prompt() {
 
 install_tools() {
   echo "Installing SDC VM Guest Tools..."
+  cp -r ./lib/smartdc /lib/
 }
 
 install_debian() {
@@ -38,6 +34,7 @@ install_debian() {
 install_redhat() {
   install_tools
   echo "Installing redhat-flavour specific files..."
+  cp -r ./etc/rc.local /etc
 }
 
 if [[ $EUID -ne 0 ]] ; then

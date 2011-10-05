@@ -36,7 +36,7 @@ setup_redhat() {
 
 ## MAIN ##
 # applies to all operating systems and flavours
-$(/lib/smartdc/format-secondary-disk)
+(/lib/smartdc/format-secondary-disk)
 case `uname -s` in
   Linux)
     if [ -e /etc/redhat-release ] ; then
@@ -47,5 +47,8 @@ case `uname -s` in
     echo "OS specific features not implemented"
     ;;
 esac
-$(/lib/smartdc/set-root-authorized_keys)
-$(/lib/smartdc/run-user-script)
+
+(/lib/smartdc/set-root-authorized-keys)
+(/lib/smartdc/run-user-script)
+
+touch /var/lock/subsys/local
