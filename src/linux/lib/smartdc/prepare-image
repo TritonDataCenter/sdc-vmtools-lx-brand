@@ -1,0 +1,61 @@
+#!/usr/bin/bash
+
+fatal() {
+  printf "%s\n" "$@"
+  exit 1
+}
+
+check_root() {
+  if [[ $EUID != 0 ]] ; then
+    echo "You must be root to run this command"
+    echo "try again with 'sudo `basename $`'"
+    exit 1
+  fi
+}
+
+cleanup_logs() {
+  find /var/log -type f | xargs rm -f
+}
+
+cleanup_ssh() {
+  find /etc/ssh -type -f -name "ssh_host_*" | xargs rm -f    
+  rm -f /root/.ssh/authorized_keys
+}
+
+cleanup_metadata() {
+  rm -f /root/user-script
+  rm -f /root/user-data
+}
+
+# Redhat / CentOS specific commands go here
+prepare_redhat() {
+  if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
+    rm -f /etc/udev/rules.d/70-persistent-net.rules
+  fi 
+  out=$(yum clean packages)
+}
+
+# Debian / Ubuntu specific commands go here
+prepare_debian() {
+  if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
+    rm -f /etc/udev/rules.d/70-persistent-net.rules
+  fi 
+  out=$(apt-get clean)
+}
+
+## MAIN ##
+case `uname -s` in
+  Linux)
+    if [ -e /etc/redhat-release ] ; then
+      prepare_redhat
+    elif [ -e /etc/debian_version ] ; then
+      prepare_debian
+    fi
+		cleanup_logs
+		cleanup_ssh
+		cleanup_metadata
+		;;
+  *)
+    echo "OS specific features not implemented"
+    ;;
+esac
