@@ -90,6 +90,7 @@ prepare_debian() {
   if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
     rm -f /etc/udev/rules.d/70-persistent-net.rules
   fi 
+  find /var/lib/dhcp3 -type f -name "*.leases" | xargs rm -f 
   
   info "cleaning up package cache"
   out=$(apt-get clean)

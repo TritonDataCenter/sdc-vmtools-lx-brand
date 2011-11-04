@@ -18,11 +18,15 @@ setup_interfaces_redhat() {
   interfaces=$(ifconfig -a | grep ^eth | awk '{print $1}')
   
   for i in ${interfaces[@]} ; do
+  	ifdown $i
     config=/etc/sysconfig/network-scripts/ifcfg-$i
     echo "DEVICE=\"$i\"" > $config
     echo "ONBOOT=\"yes\"" >> $config
     echo "BOOTPROTO=\"dhcp\"" >> $config
     ifup $i
+    # Redhat is even worse, in that we have to send gratuitious
+    # arps for some reason to update the neighbouring cache
+    out=$(/lib/smartdc/send-arp-updates) 
   done
 
 }
