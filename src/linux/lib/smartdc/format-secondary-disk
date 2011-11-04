@@ -4,46 +4,50 @@
 # formats the secondary disk
 
 fatal() {
-  printf "fatal: %s\n" "$@"
+	printf "(fatal) %s\n" "$@"
   exit 1;
 }
 
 debug() {
   if [[ -n "$DEBUG" ]]; then
-    printf "%s\n" "$@"
+		printf "(debug) %s\n" "$@"
   fi
+}
+
+info() {
+	printf "(info) %s\n" "$@"
 }
 
 SFDISK=`which sfdisk 2> /dev/null`
 
 if [[ ! -e /dev/vdb ]] ; then
-  fatal "Secondary disk '/dev/vdb' not found. Exiting."
+  fatal "secondary disk '/dev/vdb' not found. exiting."
 fi
 
 if [[ -z $SFDISK ]] ; then
-  fatal "sfdisk binary not found. Exiting."
+  fatal "sfdisk binary not found. exiting."
 fi
 
 ## Sanity check
 partexists=$(sfdisk -l /dev/vdb 2>/dev/null | grep vdb1 | awk '{print $8}')
 if [ "$partexists" != "" ] ; then
-  debug "Partition table already exists. Skipping."
+  debug "partition table already exists. skipping."
   exit 0
 fi
 
 # Otherwise we're creating the partition, formatting it, and mounting it
-echo "Creating partition /dev/vdb1..."
+info "creating partition /dev/vdb1"
 echo "0,,L,*" | sfdisk /dev/vdb 2>/dev/null >/dev/null
 
-echo "Creating ext4 filesystem on /dev/vdb1..."
+info "creating ext4 filesystem on /dev/vdb1"
 mkfs.ext4 /dev/vdb1 2>/dev/null >/dev/null
 
 fsentry=$(grep '/dev/vdb1' /etc/fstab)
 if [[ -z $fsentry ]] ; then
-  echo "Adding fstab entry for /dev/vdb1..."
+  info "adding fstab entry for /dev/vdb1"
   [[ ! -e /data ]] && mkdir /data
   printf "/dev/vdb1\t\t/data\t\t\text4\tdefaults\t0 0\n" >> /etc/fstab
-  echo "Mounting /dev/vdb1 as /data..."
+  info "mounting /dev/vdb1 as /data"
   mount /data
 fi
 echo "Done"

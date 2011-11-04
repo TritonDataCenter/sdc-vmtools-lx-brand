@@ -3,12 +3,20 @@
 WARNING=""
 
 addwarn() {
-  WARNING="${WARNING}$@\n"
+  WARNING="${WARNING}(warning) $@\n"
 }
 
 fatal() {
-  printf "%s\n" "$@"
+  printf "(fatal) %s\n" "$@"
   exit 1
+}
+
+info() {
+  printf "(info) %s\n" "$@"
+}
+
+warn() {
+  printf "(warn) %s\n" "$@"
 }
 
 separator() {
@@ -27,44 +35,50 @@ check_root() {
 }
 
 cleanup_logs() {
-  echo "(info) cleaning up Logs..."
+  info "cleaning up logs"
   find /var/log -type f | xargs rm -f
 }
 
 cleanup_root() {
-  echo "(info) cleaning up root account..."
-  # check to see if the root user has a password
+  info "cleaning up root account"
+  # Todo warn if root user has a password
   rm -f /root/.bash_history
+  local passwd=$(grep ^root: /etc/shadow- | awk -F ':' '{print $2}')
+  if [[ ! -n $passwd ]] ; then
+    addwarn "root user has a password set. This is a potential vulnerability"
+    addwarn "consider removing the password with 'passwd -d root'."
+  fi
 }
 
 cleanup_ssh() {
-  echo "(info) cleaning up ssh..."
+  info "cleaning up ssh"
   find /etc/ssh -type f -name "ssh_host_*" | xargs rm -f    
   rm -f /root/.ssh/authorized_keys
 }
 
 cleanup_metadata() {
-  echo "(info) cleaning up meta data..."
+  info "cleaning up meta data"
   rm -f /root/user-script
   rm -f /root/user-data
 }
 
 # Redhat / CentOS specific commands go here
 prepare_redhat() {
-  echo "(info) cleaning up network devices..."
-  if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
-    rm -f /etc/udev/rules.d/70-persistent-net.rules
-  fi 
+  info "cleaning up network devices"
+  
+  rm -f /etc/udev/rules.d/70-persistent-net.rules
+  find /etc/sysconfig/network-scripts -name "ifcfg-eth*" | xargs rm -f
+  find /var/lib/dhclient -type f | xargs rm -f 
 
-  echo "(info) cleaning up package cache..."
+  info "cleaning up package cache"
   out=$(yum clean packages)
 
   local rpmbin=$(which rpm 2>/dev/null)
   if [[ -e ${rpmbin} ]] ; then
     out=$($rpmbin -qa acpid)
     if [[ -z ${out} ]]; then
-      addwarn "(warning) ACPID not found. Lifecycle management will be degraded!"
-      addwarn "(warning) To install acpid run 'yum install acpid'"
+      addwarn "ACPID not found. Lifecycle management will be degraded!"
+      addwarn "To install acpid run 'yum install acpid'."
     fi
   fi
 
@@ -72,20 +86,20 @@ prepare_redhat() {
 
 # Debian / Ubuntu specific commands go here
 prepare_debian() {
-  echo "(info) cleaning up network devices..."
+  info "cleaning up network devices"
   if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
     rm -f /etc/udev/rules.d/70-persistent-net.rules
   fi 
   
-  echo "(info) cleaning up package cache..."
+  info "cleaning up package cache"
   out=$(apt-get clean)
   
   local dpkgbin=$(which dpkg 2>/dev/null)
   if [[ -e ${dpkgbin} ]] ; then
     out=$($dpkgbin -l acpid | grep ^ii | wc -l)
     if [[ ${out} == "0" ]]; then
-      addwarn "(warning) ACPID not found. Lifecycle management will be degraded!"
-      addwarn "(warning) To install acpid run 'apt-get install acpid'"
+      addwarn "ACPID not found. Lifecycle management will be degraded!"
+      addwarn "To install acpid run 'apt-get install acpid'."
     fi
   fi
 }
@@ -104,7 +118,7 @@ case `uname -s` in
     cleanup_metadata
     ;;
   *)
-    echo "(warning) OS specific features not implemented"
+    warn "OS specific features not implemented"
     ;;
 esac
 
@@ -116,4 +130,11 @@ if [[ ${WARNING} != "" ]] ; then
   separator
   printf "\n\n"
   exit 1
+else
+  printf "\n"
+  separator
+  printf "(info) you may now snapshot your machine\n"
+  separator
+  printf "\n\n"
+  exit 0
 fi
