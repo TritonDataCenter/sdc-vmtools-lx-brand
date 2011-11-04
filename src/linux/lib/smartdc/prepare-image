@@ -1,8 +1,21 @@
-#!/usr/bin/bash
+#!/bin/bash
+
+WARNING=""
+
+addwarn() {
+  WARNING="${WARNING}$@\n"
+}
 
 fatal() {
   printf "%s\n" "$@"
   exit 1
+}
+
+separator() {
+  for i in {1..78} ; do
+    printf "="
+  done
+  printf "\n"
 }
 
 check_root() {
@@ -14,48 +27,93 @@ check_root() {
 }
 
 cleanup_logs() {
+  echo "(info) cleaning up Logs..."
   find /var/log -type f | xargs rm -f
 }
 
+cleanup_root() {
+  echo "(info) cleaning up root account..."
+  # check to see if the root user has a password
+  rm -f /root/.bash_history
+}
+
 cleanup_ssh() {
-  find /etc/ssh -type -f -name "ssh_host_*" | xargs rm -f    
+  echo "(info) cleaning up ssh..."
+  find /etc/ssh -type f -name "ssh_host_*" | xargs rm -f    
   rm -f /root/.ssh/authorized_keys
 }
 
 cleanup_metadata() {
+  echo "(info) cleaning up meta data..."
   rm -f /root/user-script
   rm -f /root/user-data
 }
 
 # Redhat / CentOS specific commands go here
 prepare_redhat() {
+  echo "(info) cleaning up network devices..."
   if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
     rm -f /etc/udev/rules.d/70-persistent-net.rules
   fi 
+
+  echo "(info) cleaning up package cache..."
   out=$(yum clean packages)
+
+  local rpmbin=$(which rpm 2>/dev/null)
+  if [[ -e ${rpmbin} ]] ; then
+    out=$($rpmbin -qa acpid)
+    if [[ -z ${out} ]]; then
+      addwarn "(warning) ACPID not found. Lifecycle management will be degraded!"
+      addwarn "(warning) To install acpid run 'yum install acpid'"
+    fi
+  fi
+
 }
 
 # Debian / Ubuntu specific commands go here
 prepare_debian() {
+  echo "(info) cleaning up network devices..."
   if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
     rm -f /etc/udev/rules.d/70-persistent-net.rules
   fi 
+  
+  echo "(info) cleaning up package cache..."
   out=$(apt-get clean)
+  
+  local dpkgbin=$(which dpkg 2>/dev/null)
+  if [[ -e ${dpkgbin} ]] ; then
+    out=$($dpkgbin -l acpid | grep ^ii | wc -l)
+    if [[ ${out} == "0" ]]; then
+      addwarn "(warning) ACPID not found. Lifecycle management will be degraded!"
+      addwarn "(warning) To install acpid run 'apt-get install acpid'"
+    fi
+  fi
 }
 
 ## MAIN ##
 case `uname -s` in
   Linux)
-    if [ -e /etc/redhat-release ] ; then
+    if [ -f /etc/redhat-release ] ; then
       prepare_redhat
-    elif [ -e /etc/debian_version ] ; then
+    elif [ -f /etc/debian_version ] ; then
       prepare_debian
     fi
-		cleanup_logs
-		cleanup_ssh
-		cleanup_metadata
-		;;
+    cleanup_logs
+    cleanup_ssh
+    cleanup_root
+    cleanup_metadata
+    ;;
   *)
-    echo "OS specific features not implemented"
+    echo "(warning) OS specific features not implemented"
     ;;
 esac
+
+
+if [[ ${WARNING} != "" ]] ; then
+  printf "\n"
+  separator
+  printf "${WARNING}"
+  separator
+  printf "\n\n"
+  exit 1
+fi
