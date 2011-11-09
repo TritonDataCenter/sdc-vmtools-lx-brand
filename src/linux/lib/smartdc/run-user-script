@@ -3,7 +3,7 @@
 # Copyright (c) 2011 Joyent Inc., All rights reserved.
 #
 
-/lib/smartdc/mdata-get user-script > /root/user-script
+/lib/smartdc/mdata-get user-script > /root/user-script 2>>/dev/console
 if [[ $? -eq 0 ]] ; then
     if [[ ! -f /root/.uscript.lock ]] ; then
         touch /root/.uscript.lock
