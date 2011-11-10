@@ -94,6 +94,7 @@ done
 
 if [[ ${got_all_data} -ne 1 ]]; then
      echo "mdata-get: error getting results. Please try again." >&2
+     exit 2
 fi
 
 echo -n -e "${result}"
