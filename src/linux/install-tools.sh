@@ -28,13 +28,13 @@ install_tools() {
 install_debian() {
   install_tools
   echo "Installing debian-flavour specific files..."
-  cp -r ./etc/init/networking-interfaces-config.conf /etc/init/
+  cp ./etc/init/networking-interfaces-config.conf /etc/init
 }
 
 install_redhat() {
   install_tools
   echo "Installing redhat-flavour specific files..."
-  cp -r ./etc/rc.local /etc
+  cp ./etc/rc.local /etc
 }
 
 if [[ $EUID -ne 0 ]] ; then

@@ -41,10 +41,9 @@ cleanup_logs() {
 
 cleanup_root() {
   info "cleaning up root account"
-  # Todo warn if root user has a password
   rm -f /root/.bash_history
   local passwd=$(grep ^root: /etc/shadow- | awk -F ':' '{print $2}')
-  if [[ ! -n $passwd ]] ; then
+  if [[ -n $passwd ]] ; then
     addwarn "root user has a password set. This is a potential vulnerability"
     addwarn "consider removing the password with 'passwd -d root'."
   fi
@@ -72,6 +71,11 @@ prepare_redhat() {
 
   info "cleaning up package cache"
   out=$(yum clean packages)
+  
+  if [[ -z `which arping` ]] ; then
+    addwarn "arping not found!"
+    addwarn "to install arping run 'yum install arping'"
+  fi
 
   local rpmbin=$(which rpm 2>/dev/null)
   if [[ -e ${rpmbin} ]] ; then
@@ -90,10 +94,28 @@ prepare_debian() {
   if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
     rm -f /etc/udev/rules.d/70-persistent-net.rules
   fi 
-  find /var/lib/dhcp3 -type f -name "*.leases" | xargs rm -f 
+
+  if [[ -d /var/lib/dhcp3 ]] ; then 
+    find /var/lib/dhcp3 -type f -name "*.leases" | xargs rm -f
+  elif [[ -d /var/lib/dhcp ]] ; then
+    find /var/lib/dhcp -type f -name "*.leases" | xargs rm -f
+  fi
+
+  if [[ -f /etc/network/interfaces ]] ; then
+    rm -f /etc/network/interfaces
+    dpkg-reconfigure ifupdown 2>&1 > /dev/null
+    echo "" >> /etc/network/interfaces
+    echo "auto eth0" >> /etc/network/interfaces
+    echo "iface eth0 inet dhcp" >> /etc/network/interfaces
+  fi
   
   info "cleaning up package cache"
   out=$(apt-get clean)
+
+  if [[ -z `which arping` ]] ; then
+    addwarn "arping not found!"
+    addwarn "to install arping run 'apt-get install arping'."
+  fi
   
   local dpkgbin=$(which dpkg 2>/dev/null)
   if [[ -e ${dpkgbin} ]] ; then
@@ -106,6 +128,11 @@ prepare_debian() {
 }
 
 ## MAIN ##
+
+separator
+printf "Prepare-image\n"
+separator
+
 case `uname -s` in
   Linux)
     if [ -f /etc/redhat-release ] ; then
