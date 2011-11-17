@@ -74,3 +74,7 @@ case `uname -s` in
     fatal "Sorry. Your OS is not supported by this installer"
     ;;
 esac
+
+echo 
+echo "All done!"
+echo 
