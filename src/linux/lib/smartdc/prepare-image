@@ -77,6 +77,11 @@ prepare_redhat() {
     addwarn "to install arping run 'yum install arping'"
   fi
 
+  if [[ -z `which lsb_release` ]] ; then
+    addwarn "lsb_release not found!"
+    addwarn "To install lsb_release run 'yum install redhat-lsb'.";
+  fi
+
   local rpmbin=$(which rpm 2>/dev/null)
   if [[ -e ${rpmbin} ]] ; then
     out=$($rpmbin -qa acpid)
