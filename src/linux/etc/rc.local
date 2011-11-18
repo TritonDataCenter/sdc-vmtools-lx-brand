@@ -72,6 +72,8 @@ case `uname -s` in
       setup_debian
     elif [[ ${vendor} == "Redhat" ]] ; then
       setup_redhat
+    elif [[ ${vendor} == "Fedora" ]] ; then
+      setup_redhat
     elif [[ ${vendor} == "Ubuntu" ]] ; then
       setup_ubuntu
     fi
