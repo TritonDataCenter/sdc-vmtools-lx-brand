@@ -42,6 +42,7 @@ cleanup_logs() {
 cleanup_root() {
   info "cleaning up root account"
   rm -f /root/.bash_history
+  rm -f /root/.viminfo
   local passwd=$(grep ^root: /etc/shadow- | awk -F ':' '{print $2}')
   if [[ -n $passwd ]] ; then
     addwarn "root user has a password set. This is a potential vulnerability"
@@ -53,6 +54,11 @@ cleanup_ssh() {
   info "cleaning up ssh"
   find /etc/ssh -type f -name "ssh_host_*" | xargs rm -f    
   rm -f /root/.ssh/authorized_keys
+}
+
+cleanup_disks() {
+	info "removing /dev/vdb entries from fstab"
+	sed -i '/^\/dev\/vdb/d' /etc/fstab
 }
 
 cleanup_metadata() {
@@ -103,7 +109,7 @@ prepare_debian() {
 
   if [[ -f /etc/network/interfaces ]] ; then
     rm -f /etc/network/interfaces
-    dpkg-reconfigure ifupdown 2>&1 > /dev/null
+		out=$(dpkg-reconfigure ifupdown 2>&1 > /dev/null)
     echo "" >> /etc/network/interfaces
     echo "auto eth0" >> /etc/network/interfaces
     echo "iface eth0 inet dhcp" >> /etc/network/interfaces

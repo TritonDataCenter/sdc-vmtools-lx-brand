@@ -65,7 +65,6 @@ setup_ubuntu() {
 
 ## MAIN ##
 # applies to all operating systems and flavours
-(/lib/smartdc/format-secondary-disk)
 case `uname -s` in
   Linux)
     vendor=$(lsb_release -si)
@@ -83,6 +82,7 @@ case `uname -s` in
 esac
 
 (/lib/smartdc/set-root-authorized-keys)
+(/lib/smartdc/format-secondary-disk)
 (/lib/smartdc/run-user-script)
 
 if [[ ! -d /var/lock/subsys ]] ; then
