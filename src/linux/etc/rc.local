@@ -74,6 +74,8 @@ case `uname -s` in
       setup_redhat
     elif [[ ${vendor} == "Fedora" ]] ; then
       setup_redhat
+    elif [[ ${vendor} == "CentOS" ]] ; then
+      setup_redhat
     elif [[ ${vendor} == "Ubuntu" ]] ; then
       setup_ubuntu
     fi

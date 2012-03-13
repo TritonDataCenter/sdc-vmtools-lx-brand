@@ -34,9 +34,20 @@ check_root() {
   fi
 }
 
+check_selinux() {
+	if [[ -f /etc/selinux/config ]] ; then
+		local mode=$(grep '^SELINUX=' /etc/selinux/config | awk -F'=' '{print $2}')
+		if [[ "${mode}" != "disabled" ]] ; then
+			addwarn "Selinux is not disabled. Do you also juggle chainsaws?"
+			addwarn "To disable set SELINUX=disabled in /etc/selinux/config"
+		fi
+	fi
+}
+
 cleanup_logs() {
   info "cleaning up logs"
   find /var/log -type f | xargs rm -f
+  touch /var/log/wtmp
 }
 
 cleanup_root() {
@@ -72,7 +83,9 @@ prepare_redhat() {
   info "cleaning up network devices"
   
   rm -f /etc/udev/rules.d/70-persistent-net.rules
-  find /etc/sysconfig/network-scripts -name "ifcfg-eth*" | xargs rm -f
+	rm -f /lib/udev/rules.d/70-persistent-net-generator.rules
+
+	find /etc/sysconfig/network-scripts -name "ifcfg-eth*" | xargs rm -f
   find /var/lib/dhclient -type f | xargs rm -f 
 
   info "cleaning up package cache"
@@ -102,9 +115,9 @@ prepare_redhat() {
 # Debian / Ubuntu specific commands go here
 prepare_debian() {
   info "cleaning up network devices"
-  if [[ -f /etc/udev/rules.d/70-persistent-net.rules ]] ; then
-    rm -f /etc/udev/rules.d/70-persistent-net.rules
-  fi 
+
+	rm -f /etc/udev/rules.d/70-persistent-net.rules
+	rm -f /lib/udev/rules.d/70-persistent-net-generator.rules
 
   if [[ -d /var/lib/dhcp3 ]] ; then 
     find /var/lib/dhcp3 -type f -name "*.leases" | xargs rm -f
@@ -151,6 +164,8 @@ case `uname -s` in
     elif [ -f /etc/debian_version ] ; then
       prepare_debian
     fi
+    check_selinux
+    cleanup_disks
     cleanup_logs
     cleanup_ssh
     cleanup_root
