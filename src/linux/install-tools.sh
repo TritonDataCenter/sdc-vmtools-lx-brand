@@ -7,21 +7,21 @@ fatal() {
 
 print_prompt() {
   echo "--------------------------------------------------------------------"
-  echo " SDC VM Guest Tools - Install (Linux)"
+  echo " SmartOS VM Guest Tools - Install (Linux)"
   echo "--------------------------------------------------------------------"
   echo  
-  echo "This script will install startup tools for SDC virtual machine"
+  echo "This script will install startup tools for SmartOS virtual machine"
   echo "guests. This includes an rc.local script which will be used to set"
   echo "root administrator ssh keys, as well as tools to automatically" 
   echo "format secondary disks, and other generic tools."
   echo "Tools will be located in /lib/smartdc, but will not be included in"
-  echo "your \$PATH environment variables automatically"
+  echo "your \$PATH environment variable automatically"
   echo
   echo
 }
 
 install_tools() {
-  echo "Installing SDC VM Guest Tools..."
+  echo "Installing SmartOS VM Guest Tools..."
   cp -r ./lib/smartdc /lib/
 }
 

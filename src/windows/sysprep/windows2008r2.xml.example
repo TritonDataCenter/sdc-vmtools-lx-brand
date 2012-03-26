@@ -45,7 +45,7 @@
             </OOBE>
             <UserAccounts>
                 <AdministratorPassword>
-                    <Value>!!Joypass123</Value>
+		    <Value>XXXXXXXXX</Value>
                     <PlainText>true</PlainText>
                 </AdministratorPassword>
             </UserAccounts>

@@ -1,4 +1,4 @@
-#SmartDC - Windows
+#SmartOS Tools - Windows
 
 Windows scripts and other associated bits and pieces
 

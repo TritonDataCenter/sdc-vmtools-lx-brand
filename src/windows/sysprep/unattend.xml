@@ -26,8 +26,8 @@
             </OOBE>
             <UserAccounts>
                 <AdministratorPassword>
-                    <Value>QgBhAHcAZABpAHIAZAB1AHAAMgBBAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAFAAYQBzAHMAdwBvAHIAZAA=</Value>
-                    <PlainText>false</PlainText>
+		    <Value>password</Value>
+                    <PlainText>true</PlainText>
                 </AdministratorPassword>
             </UserAccounts>
             <RegisteredOrganization>Company</RegisteredOrganization>

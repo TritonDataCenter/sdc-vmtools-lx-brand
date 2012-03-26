@@ -2,17 +2,17 @@ REM This file installs the tools into c:\smartdc
 REM and sets c:\smartdc\bin as part of PATH
 
 ECHO OFF
-TITLE SmartDC Tools - Install
+TITLE SmartOS Tools - Install
 
 cd %~dp0
 
 CLS
 ECHO ------------------------------------------------------------
-ECHO SmartDC Tools - Install
+ECHO SmartOS Tools - Install
 ECHO ------------------------------------------------------------
 ECHO 
 ECHO This tool will install the tools and drivers necessary
-ECHO to run Windows in a SmartDC or SmartOS environment
+ECHO to run Windows in a SmartOS or SmartOS environment
 ECHO The tools and drivers will be installed to c:\smartdc
 ECHO 
 
