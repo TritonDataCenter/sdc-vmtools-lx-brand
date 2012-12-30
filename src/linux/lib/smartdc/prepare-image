@@ -393,7 +393,7 @@ prepare_debian() {
   distname=$(grep -w linux_distro_name $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null)
   out=$(grep "^deb ${JOYENT_REPO_URL}/${vendor}/${distname} /$" /etc/apt/sources.list.d/joyent-linux-repo.sources.list | wc -l)
   if [[ ${out} -eq 0 ]]; then
-    addwarn "Joyent Linux Repo server ( ${JOYENT_REPO_URL}/${vendor}/${distname} ) not configured in /etc/apt/sources.list"
+    addwarn "Joyent Linux Repo server ( ${JOYENT_REPO_URL}/${vendor}/${distname} ) not configured in /etc/apt/sources.list.d/joyent-linux-repo.sources.list"
   fi
 
   # make sure dhcpclient called Joyent script to set hostname
