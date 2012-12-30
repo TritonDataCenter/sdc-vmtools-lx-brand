@@ -1,0 +1,88 @@
+#! /bin/bash
+
+# load common functions
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+ubuntu_remove_unused_kernels() {
+
+  which apt-mark >/dev/null 2>&1 || lib_smartdc_fatal "apt-mark not found"
+  which dpkg >/dev/null 2>&1 || lib_smartdc_fatal "dpkg not found"
+  UNUSED_KERNELS=$(dpkg --get-selections | grep joyent | grep linux | grep -v `uname -r`)
+
+  for f in $UNUSED_KERNELS
+  do
+     if [ $f != 'install' ]; then
+        echo -n "Purging unused kernel $f (Y\n)" 
+        read REPLY
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+           apt-mark unhold $f
+           out=$(apt-get -y purge $f)
+           echo "   - $out"
+        else
+           echo "Marking curent package as hold"
+           apt-mark hold $f
+        fi
+     fi
+
+  done
+}
+
+debian_remove_unused_kernels() {
+
+  which dpkg >/dev/null 2>&1 || lib_smartdc_fatal "dpkg not found"
+  UNUSED_KERNELS=$(dpkg --get-selections | grep joyent | grep linux | grep -v `uname -r`)
+
+  for f in $UNUSED_KERNELS
+  do
+     if [ $f != 'install' ]; then
+        echo -n "Purging unused kernel $f (Y\n)" 
+        read REPLY
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+           `echo "$f unhold" | dpkg --set-selections`
+           out=$(apt-get -y purge $f)
+           echo "   - $out"
+        else
+           echo "Marking curent package as hold"
+           `echo "$f hold" | dpkg --set-selections`
+        fi
+     fi
+
+  done
+}
+
+fedora_remove_unused_kernels() {
+  echo ""
+}
+
+centos_remove_unused_kernels() {
+  echo ""
+}
+
+redhat_remove_unused_kernels() {
+  echo ""
+}
+
+# subs that get ran on specific versions of Linux
+which lsb_release >/dev/null 2>&1 || lib_smartdc_info "ERROR: lsb_release not found"
+
+case `uname -s | tr '[:upper:]' '[:lower:]'` in
+  linux)
+    vendor=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
+    if [[ ${vendor} == "debian" ]] ; then
+      debian_remove_unused_kernels
+    elif [[ ${vendor} == "redhat" ]] ; then
+      redhat_remove_unused_kernels
+    elif [[ ${vendor} == "fedora" ]] ; then
+      fedora_remove_unused_kernels
+    elif [[ ${vendor} == "centos" ]] ; then
+      redhat_remove_unused_kernels
+    elif [[ ${vendor} == "ubuntu" ]] ; then
+      ubuntu_remove_unused_kernels
+    fi
+    ;;
+  *)
+    lib_smartdc_fatal "OS ( $vendor ) specific features not implemented"
+    ;;
+esac
+
+exit 0

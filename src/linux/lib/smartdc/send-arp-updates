@@ -1,4 +1,11 @@
-#!/bin/bash
+#! /bin/bash
+#
+# Copyright (c) 2012 Joyent Inc., All rights reserved.
+# resets ARP for VM to clear up issue
+# How is that for specific?
+
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
 
 set -o errexit
 set -o pipefail
@@ -7,6 +14,7 @@ device=$(ip route list | grep ^default | cut -d ' ' -f 5)
 ipaddr=$(ifconfig $device | grep 'inet addr:' | cut -d: -f2 | cut -d ' ' -f1)
 
 # We send both kinds of ARP updates, to be ultra verbose
+which arping >/dev/null 2>&1 || lib_smartdc_fatal "arping not found"
 arping -q -c 2 -A -I $device $ipaddr
 arping -q -c 2 -U -I $device $ipaddr
 

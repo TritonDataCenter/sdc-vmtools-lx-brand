@@ -1,61 +1,123 @@
-#!/usr/bin/env bash
+#! /bin/bash
 
-# Copyright 2011, Joyent Inc. All rights reserved
-# formats the secondary disk
+# Copyright 2012, Joyent Inc. All rights reserved
+# formats the secondary disk ( /dev/vdb1 )
+# also refered to as the /data disk
 
-DEBUG=true
+# customers can provision this disk how they like
+# by default we provision the whole disk as one partition
 
-fatal() {
-  printf "(fatal) %s\n" "$@"
-  exit 1;
-}
-
-debug() {
-  if [[ -n "$DEBUG" ]]; then
-    printf "(debug) %s\n" "$@"
-  fi
-}
-
-info() {
-  printf "(info) %s\n" "$@"
-}
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
 
 SFDISK=`which sfdisk 2> /dev/null`
+MKE2FS=`which mke2fs 2> /dev/null`
+TUNE2FS=`which tune2fs 2> /dev/null`
+
+checkformount() {
+   fstest=$(df -h | grep '/dev/vdb1')
+   if [ -n "$fstest" ] ; then
+     fssize=$(echo $fstest | sed 's/[[:space:]]\{2,\}/ /g' | cut -d ' ' -f2)
+     lib_smartdc_info "$fssize data disk is mounted on /dev/vdb1"
+     return 1
+   else
+     lib_smartdc_info "no data disk is mounted on /dev/vdb1"
+     return 0
+   fi
+}
+
+# Start of Main
+
+lib_smartdc_info "Start of script"
 
 if [[ ! -e /dev/vdb ]] ; then
-  fatal "secondary disk '/dev/vdb' not found. exiting."
+  lib_smartdc_fatal "secondary disk '/dev/vdb' not found. exiting."
 fi
 
 if [[ -z $SFDISK ]] ; then
-  fatal "sfdisk binary not found. exiting."
+  lib_smartdc_fatal "sfdisk binary not found. exiting."
 fi
 
 ## Sanity check
-partexists=$(sfdisk -l /dev/vdb 2>/dev/null | grep vdb1 | awk '{print $8}')
+checkformount
+return_val=$?
+if [ "$return_val" -eq 1 ]; then
+  lib_smartdc_fatal "data disk is already mounted"
+else 
+  lib_smartdc_info "no data disk is mounted"
+fi
+
+partexists=$($SFDISK -l /dev/vdb 2>/dev/null | grep vdb1 | awk '{print $8}')
 if [ "$partexists" != "" ] ; then
-  debug "partition table already exists. skipping."
-  exit 0
+   if [[ -n "$DEBUG" ]]; then
+      lib_smartdc_debug "partition table already exists. skipping."
+   else 
+      lib_smartdc_fatal "partition table already exists. skipping."
+      exit 0;
+   fi
 fi
 
 # Otherwise we're creating the partition, formatting it, and mounting it
-info "creating partition /dev/vdb1"
-echo "0,,L,*" | sfdisk /dev/vdb 2>/dev/null >/dev/null
+lib_smartdc_info "creating partition /dev/vdb1"
+echo "0,,L,*" | $SFDISK /dev/vdb 2>/dev/null >/dev/null
 
-info "creating ext4 filesystem on /dev/vdb1"
-mkfs.ext4 /dev/vdb1 2>/dev/null >/dev/null
+# need this sleep to let partition table to update
+# if not then /dev/vdb1 will not exist
+lib_smartdc_info "sleeping for update of partition table for /dev/vdb1"
+sleep 2
 
+lib_smartdc_info "creating ext4 filesystem on /dev/vdb1"
+if [[ -e /dev/vdb1 ]] ; then
+   $MKE2FS -vj -t ext4 /dev/vdb1 2>/dev/null >/dev/null
+   lib_smartdc_info "created ext4 filesystem on /dev/vdb1"
+else
+   lib_smartdc_fatal "did not create ext4 filesystem on /dev/vdb1"
+fi
+
+# add entry to fstab so data disk is mounted on reboot
 fsentry=$(grep '/dev/vdb1' /etc/fstab)
 if [[ -z $fsentry ]] ; then
-  info "adding fstab entry for /dev/vdb1"
+  lib_smartdc_info "adding fstab entry for /dev/vdb1"
   [[ ! -e /data ]] && mkdir /data
-  printf "/dev/vdb1\t/data\t\text4\tdefaults\t0\t0\n" >> /etc/fstab
+  printf "/dev/vdb1\t\t/data\t\t\text4\tdefaults\t0 0\n" >> /etc/fstab
 fi
 
-# Useful for prepare-image
-mounted=$(mount -l | grep '^/dev/vdb1 ' | wc -l)
-if [[ "${mounted}" -eq 0 ]] ; then 
-  info "mounting /dev/vdb1 as /data"
-  mount /data
+# mount the data disk
+lib_smartdc_info "mounting /dev/vdb1 as /data"
+$MOUNT_BIN /data
+
+checkformount
+return_val=$?
+if [ "$return_val" -eq 1 ]; then
+  lib_smartdc_info "data disk is mounted"
+else 
+  lib_smartdc_fatal "no data disk is mounted"
 fi
 
-echo "Done"
+# reducing reserve space from default of 1%
+# on larger disks this takes up more space than needed
+# set reserved block percentage based on disk size
+fssize=$(df -k | grep '/dev/vdb1' | sed 's/[[:space:]]\{2,\}/ /g' | cut -d ' ' -f2 )
+
+if [ $fssize -le 15728640 ]; then
+   RESERVE_BLOCK_PERCENTAGE="0.5"
+elif [ $fssize -le 31457280 ]; then
+   RESERVE_BLOCK_PERCENTAGE="0.25"
+elif [ $fssize -le 104857600 ]; then
+   RESERVE_BLOCK_PERCENTAGE="0.1"
+elif [ $fssize -le 209715200 ]; then
+   RESERVE_BLOCK_PERCENTAGE="0.05"
+else
+   RESERVE_BLOCK_PERCENTAGE="0.02"
+fi
+
+lib_smartdc_info "setting reserved blocks to ${RESERVE_BLOCK_PERCENTAGE}% on /dev/vdb1"
+$TUNE2FS -m $RESERVE_BLOCK_PERCENTAGE /dev/vdb1 2>/dev/null >/dev/null
+
+# reducing time for fsck
+lib_smartdc_info "setting auto fsck to 6 months on /dev/vdb1"
+$TUNE2FS -c 0 -i 6m /dev/vdb1 2>/dev/null >/dev/null
+
+lib_smartdc_info "End of script"
+
+exit 0

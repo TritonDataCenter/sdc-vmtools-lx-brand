@@ -1,0 +1,32 @@
+#! /bin/bash
+#
+# Copyright (c) 2012 Joyent Inc., All rights reserved.
+
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+# set disable_iptables_flag to the string TRUE 
+# to disable iptables service 
+disable_iptables_flag=$($MDATA_GET_BIN disable_iptables_flag 2>>/dev/console)
+
+IPTABLES=`which iptables 2> /dev/null`
+
+if [ ! -f $IPTABLES ]; then
+   lib_smartdc_fatal "File not found $IPTABLES"
+fi
+
+if [ "$disable_iptables_flag" = "TRUE" -o "$disable_iptables_flag" = "true" -o "$disable_iptables_flag" = "True" ]; then     
+   lib_smartdc_info "Metadata field disable_iptables_flag set to - $disable_iptables_flag"
+   lib_smartdc_info "Disabling iptables"
+   $IPTABLES -F
+   $IPTABLES -X
+   $IPTABLES -t nat -F
+   $IPTABLES -t nat -X
+   $IPTABLES -t mangle -F
+   $IPTABLES -t mangle -X
+   $IPTABLES -P INPUT ACCEPT
+   $IPTABLES -P FORWARD ACCEPT
+   $IPTABLES -P OUTPUT ACCEPT
+fi
+
+exit 0

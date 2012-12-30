@@ -1,0 +1,310 @@
+#!/bin/bash
+#
+# joyent_motd_footer  - write the Joyent footer to the MOTD
+# 
+# The Joyent MOTD does the following:
+#   - gets dataset information
+#   - performs basic system tests
+#   - performs basic network tests
+#   - queries via HTTP to get Alerts, Info and Tips
+
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+# Limitis for disk usage
+GOOD_LIMIT=80
+WARNING_LIMIT=90
+ALERT_LIMIT=95
+
+# Time in seconds for uptime ( boot ) warning
+UPTIME_WARNING_LIMIT=86400
+UPTIME_ALERT_LIMIT=43200
+
+# Load factor is a calculation that takes into
+# count the number of CUP's on a system
+# if the load factor is over this limit
+# then system CPU usage should be looked at
+LOAD_FACTOR_WARNING_LIMIT=550
+
+# Status strings with color and formatting
+GOOD_STATUS_STRING='\033[1;32m    good     \033[0m -'
+WARNING_STATUS_STRING='\033[1;33m    warn     \033[0m -'
+ALERT_STATUS_STRING='\033[5;1;31m!!! ALERT !!!\033[0m -'
+INFO_STATUS_STRING='\033[1;33m    info     \033[0m -'
+TIP_STATUS_STRING='\033[1;32m     tip     \033[0m -'
+
+# Set to 0 to disable getting alerts, info or tips via HTTP
+GET_JOYENT_ALERTS=1
+GET_JOYENT_INFO=1
+GET_JOYENT_TIPS=1
+
+# sub that prints dataset info
+print_dataset_info() {
+
+   LD=`grep -w linux_distro $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   LDV=`grep -w linux_distro_version $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   LDC=`grep -w linux_distro_name $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   JDV=`grep -w joyent_dataset_version $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   CDC=`grep -w custom_dataset_customer $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   CDT=`grep -w custom_dataset_type $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   CDV=`grep -w custom_dataset_version $JOYENT_VERSION_FILE | cut -d: -f2 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+   KV=`$UNAME_BIN -r | tr -d '\n' 2> /dev/null`
+   JPN=`grep -w Name $JOYENT_PRODUCT_FILE | cut -d: -f2-3 | tr -d '\n' 2> /dev/null`
+   DOC_URL=`grep -w Documentation $JOYENT_PRODUCT_FILE | cut -d: -f2-3 | tr -d ' ' | tr -d '\n' 2> /dev/null`
+
+   echo "              __                       __   "
+   echo "     __      / /___  __  _____  ____  / /_  "
+   echo "  __/ /___  / / __ \/ / / / _ \/ __ \/ __/  "
+   echo " /_  __/ /_/ / /_/ / /_/ /  __/ / / / /_    "
+   echo "  /_/  \____/\____/\__, /\___/_/ /_/\__/    "
+   echo "                  /____/ $LD $LDV KVM $JDV" 
+   echo "                         $KV"
+   echo "                         $CDC $CDT $CDV"
+   echo " Info at: $DOC_URL"
+   echo " "
+}
+
+# performs basic system checks and prints output
+print_system_info() {
+
+   # gets df percentage for /
+   ROOT_DISK_USAGE=`df | grep /dev/vda1 | sed -r 's/\s+/:/g' | cut -d: -f5 | tr -d '%'`
+
+   # gets df percentage for /tmp   
+   TMP_DISK_USAGE=`df | grep /dev/vda3 | sed -r 's/\s+/:/g' | cut -d: -f5 | tr -d '%'`
+
+   # gets df percentage for data disk
+   DATA_DISK_USAGE=`df | grep /dev/vdb1 | sed -r 's/\s+/:/g' | cut -d: -f5 | tr -d '%'`
+
+   # RAM usage
+   RAM_TOTAL=`grep -i memtotal /proc/meminfo | cut -d: -f2 | sed -r 's/\s+/:/g' | cut -d: -f2`
+   RAM_FREE=`grep -i memfree /proc/meminfo | cut -d: -f2 | sed -r 's/\s+/:/g' | cut -d: -f2`
+   RAM_USED=$(( $RAM_TOTAL - $RAM_FREE ))
+   
+   # Time since last reboot
+   UPTIME=`cat /proc/uptime | cut -d' ' -f 1 | cut -d. -f 1`
+
+   # CPU usage info 
+   NUM_CPU=`nproc`
+   CPU_ARCH=`lscpu | grep Architecture | cut -d: -f2 | tr -d ' '`
+   LOAD=`cat /proc/loadavg | cut -d' ' -f3`
+   PROCESSES=`cat /proc/loadavg | cut -d' ' -f4 | cut -d'/' -f2`
+
+   # var sent to sub to get human time
+   UPTIME_HUMAN_TIME=''
+   uptime_sec_to_human "$UPTIME"
+
+   # set status string for uptime
+   if [[ $UPTIME -le $UPTIME_ALERT_LIMIT ]]; then
+      UPTIME_STATUS="$ALERT_STATUS_STRING System rebooted $UPTIME_HUMAN_TIME ago"
+   elif [[ $UPTIME -le $UPTIME_WARNING_LIMIT ]]; then
+      UPTIME_STATUS="$WARNING_STATUS_STRING System has been up for $UPTIME_HUMAN_TIME"
+   else
+      UPTIME_STATUS="$GOOD_STATUS_STRING System has been up for $UPTIME_HUMAN_TIME"
+   fi
+
+   # calculate RAM usage
+   if [ $RAM_FREE == '0' ]; then
+      RAM_USAGE='100'
+   else
+      RAM_USED=$(( $RAM_USED * 100 ))
+      RAM_USAGE=$(( $RAM_USED / $RAM_TOTAL ))
+   fi
+
+   # set status string for RAM usage
+   if [[ $RAM_USAGE -le $GOOD_LIMIT ]]; then
+      RAM_USAGE_STATUS=$GOOD_STATUS_STRING
+   elif [[ $RAM_USAGE -le $WARNING_LIMIT ]]; then
+      RAM_USAGE_STATUS=$WARNING_STATUS_STRING
+   else
+      RAM_USAGE_STATUS=$ALERT_STATUS_STRING
+   fi
+
+   # Set status string for data disk usage
+   if [[ -z $DATA_DISK_USAGE ]]; then
+      DATA_DISK_STATUS=$ALERT_STATUS_STRING
+      DATA_DISK_NOT_MOUNTED=1
+   elif [[ $DATA_DISK_USAGE -le $GOOD_LIMIT ]]; then
+      DATA_DISK_STATUS=$GOOD_STATUS_STRING
+   elif [[ $DATA_DISK_USAGE -le $WARNING_LIMIT ]]; then
+      DATA_DISK_STATUS=$WARNING_STATUS_STRING
+   else
+      DATA_DISK_STATUS=$ALERT_STATUS_STRING
+   fi
+
+   # set status string for / disk usage
+   if [[ $ROOT_DISK_USAGE -le $GOOD_LIMIT ]]; then
+      ROOT_DISK_STATUS=$GOOD_STATUS_STRING
+   elif [[ $ROOT_DISK_USAGE -le $WARNING_LIMIT ]]; then
+      ROOT_DISK_STATUS=$WARNING_STATUS_STRING
+   else
+      ROOT_DISK_STATUS=$ALERT_STATUS_STRING
+   fi
+
+   # set status string for /tmp disk usage
+   if [[ $TMP_DISK_USAGE -le $GOOD_LIMIT ]]; then
+      TMP_DISK_STATUS=$GOOD_STATUS_STRING
+   elif [[ $TMP_DISK_USAGE -le $WARNING_LIMIT ]]; then
+      TMP_DISK_STATUS=$WARNING_STATUS_STRING
+   else
+      TMP_DISK_STATUS=$ALERT_STATUS_STRING
+   fi
+
+   # Make bash checkable
+   LOAD_FACTOR=`echo $LOAD $NUM_CPU | awk '{ printf("%f\n", $1/$2*100) }' | cut -d. -f1`
+
+   if [[ $LOAD_FACTOR -le $LOAD_FACTOR_WARNING_LIMIT ]]; then
+      LOAD_FACTOR_STATUS=$GOOD_STATUS_STRING
+   else
+      LOAD_FACTOR_STATUS=$WARNING_STATUS_STRING
+   fi 
+
+   # make human readable
+   LOAD_FACTOR=`echo $LOAD_FACTOR | awk '{ printf("%.2f\n", $1/100) }'`
+   
+   CORE_STR='core'
+   if [[ $NUM_CPU -gt 1 ]]; then
+      CORE_STR='cores'
+   fi
+
+   # print uptime, disk and CPU status
+   echo -e "$UPTIME_STATUS"
+   echo -e "$ROOT_DISK_STATUS System disk usage is ${ROOT_DISK_USAGE}%"
+   echo -e "$TMP_DISK_STATUS Temp disk usage is ${TMP_DISK_USAGE}%"
+
+   if [[ $DATA_DISK_NOT_MOUNTED -ge 1 ]]; then
+      echo -e "$DATA_DISK_STATUS Data disk is not mounted properly"
+   else
+      echo -e "$DATA_DISK_STATUS Data disk usage is ${DATA_DISK_USAGE}%"
+   fi
+
+   echo -e "$RAM_USAGE_STATUS System RAM usage is ${RAM_USAGE}%"
+   echo -e "$LOAD_FACTOR_STATUS $NUM_CPU $CPU_ARCH $CORE_STR with load factor of $LOAD_FACTOR with $PROCESSES processes"
+}
+
+# sub to make uptime human readable
+uptime_sec_to_human() {
+   #seconds, min, hour, day 
+
+   SEC=$1
+   MIN=$(( $1 / 60 ))
+   HOUR=$(( $1 / ( 60 * 60 ) ))
+   DAY=$(( $1 / ( 60 * 60 * 24 ) ))
+   YEAR=$(( $1 / 31556926 ))
+ 
+   if [ $1 -le 60 ]; then 
+      UPTIME_HUMAN_TIME="$SEC sec"
+   elif [ $1 -le 3600 ]; then
+      REMSEC=$(( $SEC - ( $MIN * 60 )  ))
+      UPTIME_HUMAN_TIME="$MIN min $REMSEC sec"
+   elif [ $1 -le 86400 ]; then 
+      REMSEC=$(( $SEC - ( $MIN * 60 )  ))
+      REMMIN=$(( $MIN - ( $HOUR * 60 )  ))
+      UPTIME_HUMAN_TIME="$HOUR hour $REMMIN min $REMSEC sec"
+   elif [ $1 -le 31556926 ]; then
+      REMSEC=$(( $SEC - ( $MIN * 60 )  ))
+      REMMIN=$(( $MIN - ( $HOUR * 60 )  ))
+      REMHOUR=$(( $HOUR - ( $DAY * 24 ) ))
+      UPTIME_HUMAN_TIME="$DAY day ${REMHOUR}:${REMMIN}:${REMSEC}"
+   else
+      REMSEC=$(( $SEC - ( $MIN * 60 )  ))
+      REMMIN=$(( $MIN - ( $HOUR * 60 )  ))
+      REMHOUR=$(( $HOUR - ( $DAY * 24 ) ))
+      REMDAY=$(( $DAY - ( $YEAR * 365 ) ))
+      UPTIME_HUMAN_TIME="$YEAR year $REMDAY day ${REMHOUR}:${REMMIN}:${REMSEC}"
+   fi
+ 
+}
+
+# network status info
+print_network_info() {
+
+   # ping IP 
+   PING_STATS=`$PING_BIN -nqc 5 -i .1 $PING_SERVER | tail -n 2`
+
+   PACKET_LOSS=`echo $PING_STATS | cut -d, -f3 | sed -r 's/\s+/:/g' | cut -d: -f2 | tr -d '%'`
+
+   if [ $PACKET_LOSS -eq 0 ]; then
+      PACKET_AVG=`echo $PING_STATS | cut -d'=' -f2 | cut -d/ -f2`
+      INTERNET_ACCESS_STATUS="$GOOD_STATUS_STRING no packet loss to Internet with avg $PACKET_AVG ms ping to $PING_SERVER"
+   elif [ $PACKET_LOSS -eq 100 ]; then
+      INTERNET_ACCESS_STATUS="$ALERT_STATUS_STRING Internet is not accessable"
+   else
+      PACKET_AVG=`echo $PING_STATS | cut -d'=' -f2 | cut -d/ -f2`
+      INTERNET_ACCESS_STATUS="$WARNING_STATUS_STRING $PACKET_LOSS packet loss to Internet with avg $PACKET_AVG ms ping to $PING_SERVER"
+   fi
+
+  echo -e "$INTERNET_ACCESS_STATUS"
+
+  NTPD_SERVERS=$(ntpq -pn | tail -n+3 | wc -l)
+  NTPD_DOWN_SERVERS=$(ntpq -pn | grep -E "\.INIT\.(.*)(0.000)(.*)(0.000)(.*)(0.000)" | wc -l)
+  NTPD_UP_SERVERS=$(( $NTPD_SERVERS - $NTPD_DOWN_SERVERS ))
+     
+  if [ $NTPD_DOWN_SERVERS -gt 3 ]; then
+     NTPD_STATUS="$WARNING_STATUS_STRING $NTPD_DOWN_SERVERS out of $NTPD_SERVERS remote NTP servers not responding"
+  else
+     NTPD_STATUS="$GOOD_STATUS_STRING $NTPD_UP_SERVERS out of $NTPD_SERVERS remote NTP servers responding"
+  fi
+ 
+  echo -e "$NTPD_STATUS"
+
+  header="\n%5s %-16s %-20s %-16s %-4s"
+  format="\n%5s %-16s %-20s %-16s %04s"
+
+  printf "$header" "if:" "  IPV4 Address" "bandwidth RX / TX" "e:d:o RX / TX" "clsn"
+  INTERFACES=$( ifconfig -a | grep ^eth | awk '{print $1}' )
+  for i in ${INTERFACES[@]} ; do
+     IPV4=`ifconfig $i | grep 'inet addr' | cut -d: -f2 | cut -d' ' -f1`
+     if [[ -z $IPV4 ]]; then
+        format="\n%5s \033[5;1;31m%-16s\033[0m %-20s %-16s %04s"
+        IPV4=" !!! NO IP !!!"
+     fi
+     RX_TOTAL=`ifconfig $i | grep 'RX bytes' | cut -d'(' -f2 | cut -d')' -f1 | sed -r 's/iB/B/g'`
+     RX_EDO=`ifconfig $i | grep 'RX packets' | sed -r 's/\s+/:/g' | cut -d: -f6,8,10`
+     TX_TOTAL=`ifconfig $i | grep 'RX bytes' | cut -d'(' -f3 | cut -d')' -f1 | sed -r 's/iB/B/g'`
+     TX_EDO=`ifconfig $i | grep 'TX packets' | sed -r 's/\s+/:/g' | cut -d: -f6,8,10`
+     COLLISIONS=`ifconfig $i | grep 'collisions' | cut -d: -f2 | cut -d' ' -f1`
+     printf "$format" "${i}:"  "${IPV4}" "${RX_TOTAL} / ${TX_TOTAL}" "${RX_EDO} / ${TX_EDO}" "${COLLISIONS}"
+  done
+}
+
+
+# Start of Main
+
+print_dataset_info
+print_system_info
+
+# on boot net may not be set for a few sec 
+# for dhcpclient to set IP's
+# just skip networking info till 15 sec after boot
+if [ `cat /proc/uptime | cut -d' ' -f 1 | cut -d. -f 1` -ge "15" ]; then
+   print_network_info
+
+   echo -e "\n"
+
+   if [ $GET_JOYENT_ALERTS -eq 1 ]; then
+      JOYENT_ALERTS=$($GET_MOTD_BIN a | sed ':a;N;$!ba;s/\n/\n               /g')
+      if [[ ! -z $JOYENT_ALERTS ]]; then
+         echo -e "$ALERT_STATUS_STRING $JOYENT_ALERTS"
+      fi
+   fi
+
+   if [ $GET_JOYENT_INFO -eq 1 ]; then
+      JOYENT_ALERTS=$($GET_MOTD_BIN i | sed ':a;N;$!ba;s/\n/\n               /g')
+      if [[ ! -z $JOYENT_ALERTS ]]; then
+         echo -e "$INFO_STATUS_STRING $JOYENT_ALERTS"
+      fi
+   fi
+
+   if [ $GET_JOYENT_TIPS -eq 1 ]; then
+      JOYENT_ALERTS=$($GET_MOTD_BIN t | sed ':a;N;$!ba;s/\n/\n               /g')
+      if [[ ! -z $JOYENT_ALERTS ]]; then
+         echo -e "$TIP_STATUS_STRING $JOYENT_ALERTS"
+      fi
+   fi
+else
+   echo -e "\nSkipping networking info"
+   lib_smartdc_info "Skipping networking info"
+fi
+
+echo -e "\n\n"

@@ -1,13 +1,29 @@
-#!/bin/bash
+#! /bin/bash
 #
-# Copyright (c) 2011 Joyent Inc., All rights reserved.
+# Copyright (c) 2012 Joyent Inc., All rights reserved.
 #
 
-/lib/smartdc/mdata-get user-script > /root/user-script 2>>/dev/console
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+# set run_userscript_flag to the string TRUE 
+# to remove /root/.uscript.lock so that userscript is ran
+run_userscript_flag=$($MDATA_GET_BIN run_userscript_flag 2>>/dev/console)
+
+if [ "$run_userscript_flag" = "TRUE" -o "$run_userscript_flag" = "true" -o "$run_userscript_flag" = "True" ]; then     
+  lib_smartdc_info "Metadata field run_userscript_flag set to - $run_userscript_flag"
+  lib_smartdc_info "Removing /root/.uscript.lock"
+  rm -f /root/.uscript.lock
+fi
+
+$MDATA_GET_BIN user-script > /root/user-script 2>>/dev/console
 if [[ $? -eq 0 ]] ; then
-  if [[ ! -f /root/.uscript.lock ]] ; then
-    touch /root/.uscript.lock
-    chmod +x /root/user-script
-    exec /root/user-script
-  fi
+    if [[ ! -f /root/.uscript.lock ]] ; then
+      touch /root/.uscript.lock
+      chmod +x /root/user-script
+      lib_smartdc_info "Executing /root/user-script"
+      exec /root/user-script
+    else 
+      lib_smartdc_info "/root/.uscript.lock exist - not running /root/user-script"
+    fi
 fi
