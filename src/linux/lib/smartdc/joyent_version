@@ -1,6 +1,6 @@
-linux_distro: ubuntu
-linux_distro_version: 12.04 
-linux_distro_name: precise 
+linux_distro: debian
+linux_distro_version: 6.0.6 
+linux_distro_name: squeeze 
 joyent_dataset_version: 2.3.1
 custom_dataset_customer:
 custom_dataset_type:
