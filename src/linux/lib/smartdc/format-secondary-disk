@@ -49,8 +49,9 @@ fi
 
 partexists=$($SFDISK -l /dev/vdb 2>/dev/null | grep vdb1 | awk '{print $8}')
 if [ "$partexists" != "" ] ; then
-   if [[ -n "$DEBUG" ]]; then
+   if [[ "$DEBUG" -eq 1 ]]; then
       lib_smartdc_debug "partition table already exists. skipping."
+      exit 0;
    else 
       lib_smartdc_fatal "partition table already exists. skipping."
       exit 0;
