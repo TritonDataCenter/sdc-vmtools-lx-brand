@@ -28,16 +28,6 @@ separator() {
   printf "\n"
 }
 
-check_selinux() {
-  if [[ -f /etc/selinux/config ]] ; then
-    local mode=$(grep '^SELINUX=' /etc/selinux/config | awk -F'=' '{print $2}')
-    if [[ "${mode}" != "disabled" ]] ; then
-      addwarn "SElinux is not disabled. Do you also juggle chainsaws?"
-      addwarn "To disable set SELINUX=disabled in /etc/selinux/config"
-    fi
-  fi
-}
-
 cleanup_logs() {
   lib_smartdc_info "cleaning up logs"
   find /var/log -type f | xargs rm -f
@@ -525,7 +515,6 @@ case `uname -s | tr '[:upper:]' '[:lower:]'` in
 
     # run on all versions of linux
     check_lib_smartdc
-    check_selinux
     cleanup_logs
     cleanup_lock_files
     cleanup_disks
