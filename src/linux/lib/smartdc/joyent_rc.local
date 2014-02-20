@@ -40,18 +40,6 @@ debian_kernel_hold() {
   done
 }
 
-redhat_kernel_hold() {
-  lib_smartdc_info "need to code redhat_kernel_hold"
-}
-
-fedora_kernel_hold() {
-  lib_smartdc_info "need to code fedora_kernel_hold"
-}
-
-centos_kernel_hold() {
-  lib_smartdc_info "need to code centos_kernel_hold"
-}
-
 # rhel and derivatives (centos, etc)
 setup_redhat() {
   # CentOS does something interesting to the serial devices. 
@@ -193,13 +181,10 @@ case `uname -s | tr '[:upper:]' '[:lower:]'` in
       debian_kernel_hold
     elif [[ ${vendor} == "redhat" ]] ; then
       setup_redhat
-      redhat_kernel_hold
     elif [[ ${vendor} == "fedora" ]] ; then
       setup_redhat
-      fedora_kernel_hold
     elif [[ ${vendor} == "centos" ]] ; then
       setup_redhat
-      centos_kernel_hold
     elif [[ ${vendor} == "ubuntu" ]] ; then
       setup_ubuntu
       ubuntu_kernel_hold
