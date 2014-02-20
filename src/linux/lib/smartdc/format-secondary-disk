@@ -31,7 +31,7 @@ checkformount() {
 
 # Start of Main
 
-lib_smartdc_info "Start of script"
+lib_smartdc_info "Start of $(basename $0) script"
 
 if [[ ! -e ${DATA_DISK_DEV} ]] ; then
   lib_smartdc_fatal "secondary disk '${DATA_DISK_DEV}' not found. exiting."
@@ -60,9 +60,22 @@ lib_smartdc_info "creating gpt partition ${DATA_DISK_DEV}1"
 echo "0,,L,*" | $SFDISK $DATA_DISK_DEV 2>/dev/null >/dev/null
 
 # set partition for disk to gpt
-($PARTED -s $DATA_DISK_DEV mklabel gpt)
-if [[ $? -gt 0 ]]; then
-   lib_smartdc_fatal "failed to make gpt partition table of $DATA_DISK_DEV"
+lib_smartdc_info "creating gpt disk label on ${DATA_DISK_DEV}"
+COUNT=0
+while [[ $COUNT -lt 5 ]] ; do
+  ($PARTED -s $DATA_DISK_DEV mklabel gpt)
+  if [[ $? -gt 0 ]]; then
+    lib_smartdc_info "failed to make gpt disk label on $DATA_DISK_DEV. Trying again..."
+  else
+    lib_smartdc_info "gpt disk label on $DATA_DISK_DEV created"
+    break
+  fi
+  let COUNT=COUNT+1
+  sleep 1
+done
+
+if [[ $COUNT -eq 5 ]]; then
+  lib_smartdc_fatal "failed to create gpt disk label on $DATA_DISK_DEV, aborting"
 fi
 
 # get size of data disk
