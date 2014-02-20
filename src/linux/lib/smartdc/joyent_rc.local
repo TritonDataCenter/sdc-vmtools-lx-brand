@@ -40,7 +40,7 @@ debian_kernel_hold() {
   done
 }
 
-# rhel and derivatives (centos, etc)
+# CentOS and Fedora
 setup_redhat() {
   # CentOS does something interesting to the serial devices. 
   # We run a dummy query
