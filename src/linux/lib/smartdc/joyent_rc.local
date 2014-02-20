@@ -214,6 +214,5 @@ esac
 (/lib/smartdc/set-root-authorized-keys)
 (/lib/smartdc/format-secondary-disk)
 (/lib/smartdc/run-user-script)
-(/lib/smartdc/disable-iptables)
 
 exit 0
