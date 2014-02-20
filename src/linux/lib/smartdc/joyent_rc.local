@@ -11,35 +11,6 @@
 # instead use info with ERROR
 # this will show up in logs and on console
 
-# markes all Joyent kernels as hold to prevent apt-get upgrade from
-# installing same kernel on apt-get upgrade
-ubuntu_kernel_hold() {
-  which apt-mark >/dev/null 2>&1 || lib_smartdc_info "ERROR: apt-mark not found" 
-  which dpkg >/dev/null 2>&1 || lib_smartdc_info "ERROR: dpkg not found" 
-  UNUSED_KERNELS=$(dpkg --get-selections | grep joyent | grep 'linux-image' | grep -v hold)
-
-  for f in $UNUSED_KERNELS
-  do
-     if [ $f != 'install' ]; then
-        lib_smartdc_info "Marking kernel $f as hold" 
-        out=$(apt-mark hold $f)
-     fi
-  done
-}
-
-debian_kernel_hold() {
-  which dpkg >/dev/null 2>&1 || lib_smartdc_info "ERROR: dpkg not found" 
-  UNUSED_KERNELS=$(dpkg --get-selections | grep joyent | grep 'linux-image' | grep -v hold)
-
-  for f in $UNUSED_KERNELS
-  do
-     if [ $f != 'install' ]; then
-        lib_smartdc_info "Marking kernel $f as hold" 
-        out=$(echo "$f hold" | dpkg --set-selections)
-     fi
-  done
-}
-
 # CentOS and Fedora
 setup_redhat() {
   # CentOS does something interesting to the serial devices. 
@@ -114,13 +85,6 @@ setup_debian() {
      lib_smartdc_info " ERROR: Issuing $MOUNT_BIN -a to ensure all is mounted."
      $MOUNT_BIN -a
   fi
-
-  # add linux pkg repo public GPG key
-  out=$(apt-key list | grep "$JOYENT_GPG_KEY" | wc -l)
-  if [ $out -eq 0 ]; then
-    lib_smartdc_info "Adding Joyent Linux Repo GPG key"
-    cat /lib/smartdc/joyent_linux_repo_gpg_key | apt-key add - 2>&1 > /dev/null
-  fi
 }
 
 setup_ubuntu() {
@@ -161,13 +125,6 @@ setup_ubuntu() {
      lib_smartdc_info " ERROR: Issuing $MOUNT_BIN -a to ensure all is mounted."
      $MOUNT_BIN -a
   fi
-
-  # add linux pkg repo public GPG key
-  out=$(apt-key list | grep "$JOYENT_GPG_KEY" | wc -l)
-  if [ $out -eq 0 ]; then
-    lib_smartdc_info "Adding Joyent Linux Repo GPG key"
-    cat /lib/smartdc/joyent_linux_repo_gpg_key | apt-key add - 2>&1 > /dev/null
-  fi
 }
 
 # Start of Main
@@ -178,7 +135,6 @@ case `uname -s | tr '[:upper:]' '[:lower:]'` in
     vendor=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
     if [[ ${vendor} == "debian" ]] ; then
       setup_debian
-      debian_kernel_hold
     elif [[ ${vendor} == "redhat" ]] ; then
       setup_redhat
     elif [[ ${vendor} == "fedora" ]] ; then
@@ -187,7 +143,6 @@ case `uname -s | tr '[:upper:]' '[:lower:]'` in
       setup_redhat
     elif [[ ${vendor} == "ubuntu" ]] ; then
       setup_ubuntu
-      ubuntu_kernel_hold
     fi
     ;;
   *)
