@@ -29,6 +29,11 @@ if [[ ! -f /root/.ssh/authorized_keys ]]; then
         lib_smartdc_info "Creating /root/.ssh/authorized_keys with Metadata field root_authorized_keys"
         chmod 700 /root/.ssh
         chmod 600 /root/.ssh/authorized_keys
+        
+        which restorecon &> /dev/null
+        if [[ $? -eq 0 ]]; then
+            restorecon -R -v /root/.ssh
+        fi
     fi
 fi
 
