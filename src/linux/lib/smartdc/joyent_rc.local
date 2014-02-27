@@ -1,5 +1,7 @@
 #! /bin/bash
 # 
+# Copyright (c) 2014, Joyent, Inc. All rights reserved.
+#
 # Joyent specific scripts that are ran on each boot
 # this is called from /etc/rc.local
 
