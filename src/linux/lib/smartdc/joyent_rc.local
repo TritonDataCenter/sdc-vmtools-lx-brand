@@ -15,7 +15,7 @@
 
 # CentOS and Fedora
 setup_redhat() {
-  # CentOS does something interesting to the serial devices. 
+  # CentOS does something interesting to the serial devices.
   # We run a dummy query
   if [ ! -f $MDATA_GET_BIN ]; then
      lib_smartdc_info "ERROR: File not found $MDATA_GET_BIN"
@@ -157,6 +157,7 @@ esac
 if [[ ! -f /lib/smartdc/.firstboot-complete-do-not-delete ]] ; then
   (/lib/smartdc/firstboot)
 fi
+(/lib/smartdc/run-operator-script)
 (/lib/smartdc/run-user-script)
 
 exit 0
