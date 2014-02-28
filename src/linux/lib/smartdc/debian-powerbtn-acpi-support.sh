@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 
 # This script initiates a shutdown when the power putton has been
 # pressed. Loosely based on the sample that ships with the acpid package.
