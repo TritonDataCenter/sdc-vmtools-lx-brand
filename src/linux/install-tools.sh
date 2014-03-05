@@ -25,6 +25,8 @@ install_tools() {
   cp -r ./lib/smartdc /lib/
   cp -r ./usr/sbin/mdata-* /usr/sbin/
   cp -r ./usr/share/man/man1/mdata-* /usr/share/man/man1/
+  mv /etc/rc.local /etc/rc.local-backup
+  ln -s /lib/smartdc/joyent_rc.local /etc/rc.local
 }
 
 install_debian() {
@@ -36,7 +38,6 @@ install_debian() {
 install_redhat() {
   install_tools
   echo "Installing redhat-flavour specific files..."
-  cp ./etc/rc.local /etc
 }
 
 if [[ $EUID -ne 0 ]] ; then
