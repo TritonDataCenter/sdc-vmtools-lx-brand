@@ -160,4 +160,9 @@ fi
 (/lib/smartdc/run-operator-script)
 (/lib/smartdc/run-user-script)
 
+if [[ ! -d /var/lock/subsys ]] ; then
+  mkdir -p /var/lock/subsys
+fi
+touch /var/lock/subsys/local
+
 exit 0
