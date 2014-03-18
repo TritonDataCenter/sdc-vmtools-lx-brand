@@ -33,7 +33,6 @@ install_tools() {
 install_debian() {
   install_tools
   echo "Installing debian-flavour specific files..."
-  cp ./etc/init/networking-interfaces-config.conf /etc/init
 }
 
 install_redhat() {
