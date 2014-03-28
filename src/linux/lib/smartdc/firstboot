@@ -14,6 +14,9 @@ lib_smartdc_info "Start of $(basename $0) script"
 # Set hostid
 (/lib/smartdc/set-hostid)
 
+# Set /etc/hostname
+(/lib/smartdc/set-hostname-file)
+
 # Format disk
 (/lib/smartdc/format-secondary-disk)
 
