@@ -11,5 +11,6 @@ lib_smartdc_info "Start of $(basename $0) script"
 # ** This script must be run once at provision via firstboot **
 UUID=$(mdata-get sdc:uuid)
 echo $UUID > /etc/hostname
+/bin/hostname $UUID
 
 lib_smartdc_info "/etc/hostname created with $UUID"
