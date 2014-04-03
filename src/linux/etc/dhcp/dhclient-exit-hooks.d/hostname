@@ -1,0 +1,10 @@
+#! /bin/bash
+#
+# Copyright (c) 2014 Joyent Inc., All rights reserved.
+#
+
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+lib_smartdc_info "Calling Joyent script with hostname of $new_host_name"
+/lib/smartdc/set-hostname "$new_host_name"
