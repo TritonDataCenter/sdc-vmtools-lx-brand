@@ -30,14 +30,6 @@ if [ $? -eq 0 -a ! -z "$mdata_hostname" ]; then
    lib_smartdc_info "Metadata hostname set to $mdata_hostname"
    lib_smartdc_info "Setting hostname to $mdata_hostname"
    hostname "$mdata_hostname"
-else
-   if [ -z $1 ]; then
-      lib_smartdc_info "DHCP client did not get hostname from server"
-   else
-      lib_smartdc_info "DHCP client got hostname ( $1 ) from server"
-      lib_smartdc_info "Setting hostname to $1"
-      hostname "$1"
-   fi
 fi
 
 exit 0
