@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# Copyright (c) 2012 Joyent Inc., All rights reserved.
+# Copyright (c) 2014 Joyent Inc., All rights reserved.
 #
 
 # load common functions and vars
@@ -9,7 +9,9 @@
 # set system host name in this order
 # 1) use /etc/hostname if it is not empty
 # 2) use Mdata hostname if set
-# 3) use what is sent from DHCP client to set hostname
+# 3) use what is set in DHCP via /sbin/dhclient-script
+
+lib_smartdc_info "Start of $(basename $0) script"
 
 # if /etc/hostname is set then we always use that first
 if [ -f /etc/hostname -a -s /etc/hostname ]; then
