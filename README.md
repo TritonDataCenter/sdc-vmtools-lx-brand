@@ -14,10 +14,4 @@ windows images.
 
 The linux directory contains the 'mdata-get' tool, as well as several other
 scripts for formatting a secondary disk, setting up networking, and fetching
-user-scripts. There is also a 'prepare-image' tool that is used to clean up a
-machine and optimize it's disk (with respect to compressibility) prior to 
-turning it into an image.
-
-
-
-
+user-scripts.
