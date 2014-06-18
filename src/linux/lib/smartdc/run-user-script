@@ -14,23 +14,6 @@
 # to remove $USER_SCRIPT_LOCKFILE so that userscript is ran
 run_userscript_flag=$($MDATA_GET_BIN run_userscript_flag 2>>/dev/console)
 
-# make sure that directories for $USER_SCRIPT_FILE and $USER_SCRIPT_LOCKFILE exist - if not make them
-USER_SCRIPT_FILENAME=${USER_SCRIPT_FILE##*/}
-USER_SCRIPT_FILE_DIR=$( echo $USER_SCRIPT_FILE | awk '{match($1, "^.*/"); print substr($1, 1, RLENGTH-1)}' )
-
-USER_SCRIPT_LOCKFILENAME=${USER_SCRIPT_LOCKFILE##*/}
-USER_SCRIPT_LOCKFILE_DIR=$( echo $USER_SCRIPT_LOCKFILE | awk '{match($1, "^.*/"); print substr($1, 1, RLENGTH-1)}' )
-
-if [ ! -d $USER_SCRIPT_FILE_DIR ] ; then
-  lib_smartdc_info "$USER_SCRIPT_FILE_DIR dir no exist - creating"
-  mkdir -p $USER_SCRIPT_FILE_DIR
-fi
-
-if [ ! -d $USER_SCRIPT_LOCKFILE_DIR ] ; then
-  lib_smartdc_info "$USER_SCRIPT_LOCKFILE_DIR dir no exist - creating"
-  mkdir -p $USER_SCRIPT_LOCKFILE_DIR
-fi
-
 if [ "$run_userscript_flag" = "TRUE" -o "$run_userscript_flag" = "true" -o "$run_userscript_flag" = "True" ]; then     
   lib_smartdc_info "Metadata field run_userscript_flag set to - $run_userscript_flag"
   lib_smartdc_info "Removing $USER_SCRIPT_LOCKFILE"
@@ -43,7 +26,7 @@ if [[ $? -eq 0 ]] ; then
       touch $USER_SCRIPT_LOCKFILE 
       chmod +x $USER_SCRIPT_FILE 
       lib_smartdc_info "Executing $USER_SCRIPT_FILE"
-      `$USER_SCRIPT_FILE`
+      $USER_SCRIPT_FILE
       lib_smartdc_info "$USER_SCRIPT_FILE return value is '$?'"
     else 
       lib_smartdc_info "$USER_SCRIPT_LOCKFILE exist - not running $USER_SCRIPT_FILE"
