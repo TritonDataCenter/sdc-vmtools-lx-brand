@@ -34,11 +34,15 @@ install_tools() {
 install_debian() {
   install_tools
   echo "Installing debian-flavour specific files..."
+  # Install packages required for guest tools
+  apt-get install -y -q lsb-release parted
 }
 
 install_redhat() {
   install_tools
   echo "Installing redhat-flavour specific files..."
+  # Install packages required for guest tools
+  yum install -y -q redhat-lsb parted
 }
 
 if [[ $EUID -ne 0 ]] ; then
