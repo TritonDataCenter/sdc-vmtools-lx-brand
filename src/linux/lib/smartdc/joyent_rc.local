@@ -89,25 +89,16 @@ setup_debian() {
 }
 
 # Start of Main
-which lsb_release >/dev/null 2>&1 || lib_smartdc_info "ERROR: lsb_release not found"
-
 case `uname -s | tr '[:upper:]' '[:lower:]'` in
   linux)
-    vendor=$(lsb_release -si | tr '[:upper:]' '[:lower:]')
-    if [[ ${vendor} == "debian" ]] ; then
-      setup_debian
-    elif [[ ${vendor} == "redhat" ]] ; then
+    if [[ -f /etc/redhat-release ]] ; then
       setup_redhat
-    elif [[ ${vendor} == "fedora" ]] ; then
-      setup_redhat
-    elif [[ ${vendor} == "centos" ]] ; then
-      setup_redhat
-    elif [[ ${vendor} == "ubuntu" ]] ; then
-      setup_debian
+    elif [[ -f /etc/debian_version ]] ; then
+      install_debian
     fi
     ;;
   *)
-    lib_smartdc_info "ERROR: OS ( $vendor ) specific features not implemented"
+    lib_smartdc_info "ERROR: OS specific features not implemented"
     ;;
 esac
 
