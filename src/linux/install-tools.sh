@@ -50,6 +50,7 @@ if [[ $EUID -ne 0 ]] ; then
 fi
 
 ## MAIN ##
+# TODO: allow -y flag to bypass prompt to accommodate scripted installs
 clear
 print_prompt
 while true ; do
