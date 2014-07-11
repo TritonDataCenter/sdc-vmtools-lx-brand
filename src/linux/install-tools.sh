@@ -5,6 +5,7 @@ fatal() {
   exit 1
 }
 
+# TODO: Note that mdata get tools are installed in /usr/sbin/
 print_prompt() {
   echo "--------------------------------------------------------------------"
   echo " SmartOS VM Guest Tools - Install (Linux)"
