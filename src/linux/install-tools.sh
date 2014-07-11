@@ -5,8 +5,10 @@ fatal() {
   exit 1
 }
 
+
 # TODO: Note that mdata get tools are installed in /usr/sbin/
 print_prompt() {
+  clear
   echo "--------------------------------------------------------------------"
   echo " SmartOS VM Guest Tools - Install (Linux)"
   echo "--------------------------------------------------------------------"
@@ -19,6 +21,22 @@ print_prompt() {
   echo "your \$PATH environment variable automatically"
   echo
   echo
+  
+  while true ; do
+    yn=N
+    read -p "Do you want to continue (y/N) " yn
+    case $yn in
+      [Yy]* )
+        break
+        ;;
+      [Nn]* )
+        exit
+        ;;
+      *)
+        echo "Plese answer either 'y' or 'n'"
+        ;;
+      esac
+  done
 }
 
 install_tools() {
@@ -51,24 +69,16 @@ if [[ $EUID -ne 0 ]] ; then
 fi
 
 ## MAIN ##
-# TODO: allow -y flag to bypass prompt to accommodate scripted installs
-clear
-print_prompt
-while true ; do
-  yn=N
-  read -p "Do you want to continue (y/N) " yn
-  case $yn in
-    [Yy]* )
+while getopts  ":y" opt; do
+  case "${opt}" in
+    y)
       break
       ;;
-    [Nn]* )
-      exit
-      ;;
     *)
-      echo "Plese answer either 'y' or 'n'"
+      print_prompt
       ;;
-    esac
-done
+done 
+
 
 case `uname -s` in
   Linux)
