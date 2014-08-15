@@ -26,7 +26,7 @@ setup_redhat() {
     rm -f /etc/udev/rules.d/70-persistent-net.rules
   fi
   
-  interfaces=$(ifconfig -a | grep ^eth | awk '{print $1}')
+  interfaces=$(ifconfig -a | grep ^eth | awk '{print $1}' | tr ":" " ")
   
   for i in ${interfaces[@]} ; do
     ifdown $i
@@ -65,7 +65,7 @@ setup_debian() {
   echo "iface lo inet loopback" >> $config
   echo >> $config
   
-  interfaces=$(ifconfig -a | grep ^eth | awk '{print $1}')
+  interfaces=$(ifconfig -a | grep ^eth | awk '{print $1}' | tr ":" " ")
   for i in ${interfaces[@]} ; do
     ifdown $i
     lib_smartdc_info "adding $i"
