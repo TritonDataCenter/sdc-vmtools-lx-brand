@@ -62,6 +62,11 @@ install_redhat() {
   echo "Installing redhat-flavour specific files..."
   # Install packages required for guest tools
   yum install -y -q parted
+  
+  # On CentOS 7 systemd is the default.
+  # make /etc/rc.d/rc.local executable to enable rc.local Compatibility unit
+  ln -s /lib/smartdc/joyent_rc.local /etc/rc.d/rc.local
+  chmod 755 /etc/rc.d/rc.local
 }
 
 if [[ $EUID -ne 0 ]] ; then
