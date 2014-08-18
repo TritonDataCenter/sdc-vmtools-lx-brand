@@ -41,6 +41,7 @@ print_prompt() {
 
 install_tools() {
   echo "Installing SmartOS VM Guest Tools..."
+  mkdir /etc/dhcp/dhclient-exit-hooks.d/
   cp -r ./etc/dhcp/dhclient-exit-hooks.d/* /etc/dhcp/dhclient-exit-hooks.d/
   cp -r ./lib/smartdc /lib/
   cp -r ./usr/sbin/mdata-* /usr/sbin/
