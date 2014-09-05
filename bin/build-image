@@ -37,7 +37,8 @@ pack_iso() {
         -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
       ;;
     SunOS)
-      echo "Skipping - I cant find a mkisofs tool!"
+      mkisofs -J -R -input-charset iso8859-1 -V "SDC Guest Tools" -o smartos-vmtools-$timestamp.iso \
+    			  smartos-vmtools
       ;;
     *)
       fatal "Not a supported Operating system. Try it on OSX or SmartOS"
