@@ -37,8 +37,8 @@ pack_iso() {
         -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
       ;;
     SunOS)
-      mkisofs -J -R -input-charset iso8859-1 -V "SDC Guest Tools" -o smartos-vmtools-$timestamp.iso \
-    			  smartos-vmtools
+      mkisofs -J -R -input-charset iso8859-1 -V "SDC Guest Tools" -o sdc-vm-tools-$timestamp.iso \
+    			  sdc-vm-tools
       ;;
     *)
       fatal "Not a supported Operating system. Try it on OSX or SmartOS"
