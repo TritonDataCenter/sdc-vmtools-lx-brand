@@ -28,6 +28,19 @@ pack_tar() {
   cd ../
 }
 
+create_zip() {
+  echo "==> Creating zipfile"
+  cd cache
+  ZIP=`which zip`
+  if [ $? -ne 0 ]; then
+    echo "Cannot find a zip tool. Skipping zip file creation"
+  else
+    $ZIP -q -r sdc-vm-tools-$timestamp.zip sdc-vm-tools
+  fi
+  cd ../
+}
+
+
 pack_iso() {
   echo "==> Creating ISO"
   cd cache
@@ -53,5 +66,6 @@ echo "==> Starting ISO build"
 create_layout
 pack_iso
 pack_tar
+create_zip
 echo "==> DONE"
 exit 0
