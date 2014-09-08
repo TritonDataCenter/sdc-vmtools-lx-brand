@@ -77,18 +77,6 @@ setup_debian() {
     ifup $i
   done
 
-  ## work around for 
-  # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=550883
-  NFS_ENTRIES=$(grep -e "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\:\/.*[ \t]*\/.*[ \t]*nfs[ \t]*.*$" /etc/fstab | wc -l)
-  NFS_MOUNTS=$($MOUNT_BIN | grep -e "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\:\/.*[ \t]*.*type nfs.*$" | wc -l)
-
-  if [[ $NFS_ENTRIES -ne $NFS_MOUNTS ]]; then
-     lib_smartdc_info " ERROR: NFS mount mismatch."
-     lib_smartdc_info " ERROR: $NFS_ENTRIES in /etc/fstab vs \
-       $NFS_MOUNTS mounted."
-     lib_smartdc_info " ERROR: Issuing $MOUNT_BIN -a to ensure all is mounted."
-     $MOUNT_BIN -a
-  fi
 }
 
 # Start of Main
