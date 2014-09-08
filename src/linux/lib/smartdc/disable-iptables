@@ -11,12 +11,16 @@ disable_iptables_flag=$($MDATA_GET_BIN disable_iptables_flag 2>>/dev/console)
 
 IPTABLES=`which iptables 2> /dev/null`
 
-if [ ! -f $IPTABLES ]; then
+if [[ ! -f $IPTABLES ]]; then
    lib_smartdc_fatal "File not found $IPTABLES"
 fi
 
-if [ "$disable_iptables_flag" = "TRUE" -o "$disable_iptables_flag" = "true" -o "$disable_iptables_flag" = "True" ]; then     
-   lib_smartdc_info "Metadata field disable_iptables_flag set to - $disable_iptables_flag"
+# Convert to lowercase
+iptables_flag=$(echo $disable_iptables_flag | tr '[:upper:]' '[:lower:]')
+
+if [[ "$iptables_flag" == "true" ]]; then
+   lib_smartdc_info "Metadata field disable_iptables_flag set to - \
+     $disable_iptables_flag"
    lib_smartdc_info "Disabling iptables"
    $IPTABLES -F
    $IPTABLES -X
