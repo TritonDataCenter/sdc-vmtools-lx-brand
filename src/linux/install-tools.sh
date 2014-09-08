@@ -54,17 +54,6 @@ install_debian() {
   echo "Installing debian-flavour specific files..."
   # Install packages required for guest tools
   apt-get install -y -q parted
-  
-  # Debian specific DHCP hooks
-  if [[ ! -d /etc/dhcp/dhclient-exit-hooks.d/ ]] ; then
-    mkdir /etc/dhcp/dhclient-exit-hooks.d/
-  fi
-  cp -r ./etc/dhcp/dhclient-exit-hooks.d/* /etc/dhcp/dhclient-exit-hooks.d/
-  
-  if [[ ! -d /etc/dhcp/dhclient-enter-hooks.d/ ]] ; then
-    mkdir /etc/dhcp/dhclient-enter-hooks.d/
-  fi
-  cp -r ./etc/dhcp/dhclient-enter-hooks.d/* /etc/dhcp/dhclient-enter-hooks.d/
 }
 
 install_redhat() {
@@ -72,10 +61,6 @@ install_redhat() {
   echo "Installing redhat-flavour specific files..."
   # Install packages required for guest tools
   yum install -y -q parted
-  
-  # RHEL specific DHCP hooks
-  cp ./etc/dhcp/dhclient-exit-hooks /etc/dhcp/dhclient-exit-hooks
-  cp ./etc/dhcp/dhclient-enter-hooks /etc/dhcp/dhclient-enter-hooks
   
   # On CentOS 7 systemd is the default.
   # make /etc/rc.d/rc.local executable to enable rc.local Compatibility unit
