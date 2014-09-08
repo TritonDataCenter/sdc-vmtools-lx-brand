@@ -73,6 +73,10 @@ install_redhat() {
   # Install packages required for guest tools
   yum install -y -q parted
   
+  # RHEL specific DHCP hooks
+  cp ./etc/dhcp/dhclient-exit-hooks /etc/dhcp/dhclient-exit-hooks
+  cp ./etc/dhcp/dhclient-enter-hooks /etc/dhcp/dhclient-enter-hooks
+  
   # On CentOS 7 systemd is the default.
   # make /etc/rc.d/rc.local executable to enable rc.local Compatibility unit
   ln -s /lib/smartdc/joyent_rc.local /etc/rc.d/rc.local
