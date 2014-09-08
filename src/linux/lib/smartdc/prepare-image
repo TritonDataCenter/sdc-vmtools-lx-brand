@@ -47,7 +47,8 @@ cleanup_root() {
   info "cleaning up root account"
   rm -f /root/.bash_history
   rm -f /root/.viminfo
-  local passwd=$(grep ^root: /etc/shadow- | awk -F ':' '{print $2}')
+  local passwd
+  passwd=$(grep ^root: /etc/shadow- | awk -F ':' '{print $2}')
   if [[ -n $passwd ]] ; then
     addwarn "root user has a password set. This is a potential vulnerability"
     addwarn "consider removing the password with 'passwd -d root'."
@@ -82,7 +83,8 @@ prepare_redhat() {
     addwarn "to install arping run 'yum install arping'"
   fi
 
-  local rpmbin=$(which rpm 2>/dev/null)
+  local rpmbin
+  rpmbin=$(which rpm 2>/dev/null)
   if [[ -e ${rpmbin} ]] ; then
     out=$($rpmbin -qa acpid)
     if [[ -z ${out} ]]; then
@@ -122,7 +124,8 @@ prepare_debian() {
     addwarn "to install arping run 'apt-get install arping'."
   fi
   
-  local dpkgbin=$(which dpkg 2>/dev/null)
+  local dpkgbin
+  dpkgbin=$(which dpkg 2>/dev/null)
   if [[ -e ${dpkgbin} ]] ; then
     out=$($dpkgbin -l acpid | grep ^ii | wc -l)
     if [[ ${out} == "0" ]]; then
@@ -140,9 +143,9 @@ separator
 
 case `uname -s` in
   Linux)
-    if [ -f /etc/redhat-release ] ; then
+    if [[ -f /etc/redhat-release ]] ; then
       prepare_redhat
-    elif [ -f /etc/debian_version ] ; then
+    elif [[ -f /etc/debian_version ]] ; then
       prepare_debian
     fi
     cleanup_logs

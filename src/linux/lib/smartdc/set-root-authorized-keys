@@ -3,7 +3,8 @@
 # Copyright (c) 2014 Joyent Inc., All rights reserved.
 #
 
-# Script that will overwrite ~/.ssh/authorized keys if mdata field overwrite_root_akeys = OVERWRITE
+# Script that will overwrite ~/.ssh/authorized keys if mdata field 
+# overwrite_root_akeys = OVERWRITE
 # This allows for customers to update ssh keys when running this script
 # By default this script is called on each boot
 
@@ -13,20 +14,25 @@
 # set overwrite_root_akeys to the string OVERWRITE 
 # to overwrite root authorized_keys on reboot
 overwrite_authorized_flag=$($MDATA_GET_BIN overwrite_root_akeys 2>>/dev/console)
+# Convert to lowercase
+overwrite_flag=$(echo $overwrite_authorized_flag | tr '[:upper:]' '[:lower:]')
 
-
-if [ "$overwrite_authorized_flag" = "OVERWRITE" -o "$overwrite_authorized_flag" = "overwrite" -o "$overwrite_authorized_flag" = "Overwrite" ]; then  
-   lib_smartdc_info "Metadata field overwrite_root_akeys set to - $overwrite_authorized_flag - Overwriting /root/.ssh/authorized_keys"
-   lib_smartdc_info "Removine /root/.ssh/authorized_keys"
+if [[ "$overwrite_flag" == "overwrite" ]]; then
+   lib_smartdc_info "Metadata field overwrite_root_akeys set to - \
+     $overwrite_authorized_flag - Overwriting /root/.ssh/authorized_keys"
+   lib_smartdc_info "Removing /root/.ssh/authorized_keys"
    rm -f /root/.ssh/authorized_keys
 fi
 
 if [[ ! -f /root/.ssh/authorized_keys ]]; then
-    authorized_keys=$($MDATA_GET_BIN root_authorized_keys | sed 's/\(ssh-rsa\ \)/\n\1/g' | sed 's/\(ssh-dss\ \)/\n\1/g' 2>>/dev/console)
+    authorized_keys=$($MDATA_GET_BIN root_authorized_keys | \
+      sed 's/\(ssh-rsa\ \)/\n\1/g' | sed 's/\(ssh-dss\ \)/\n\1/g' \
+        2>>/dev/console)
     if [[ -n ${authorized_keys} ]]; then
         mkdir -p /root/.ssh
         echo -e "${authorized_keys}" > /root/.ssh/authorized_keys
-        lib_smartdc_info "Creating /root/.ssh/authorized_keys with Metadata field root_authorized_keys"
+        lib_smartdc_info "Creating /root/.ssh/authorized_keys with Metadata \
+          field root_authorized_keys"
         chmod 700 /root/.ssh
         chmod 600 /root/.ssh/authorized_keys
         

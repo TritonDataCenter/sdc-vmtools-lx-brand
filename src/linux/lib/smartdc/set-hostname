@@ -14,9 +14,9 @@
 lib_smartdc_info "Start of $(basename $0) script"
 
 # if /etc/hostname is set then we always use that first
-if [ -f /etc/hostname -a -s /etc/hostname ]; then
+if [[ -f /etc/hostname -a -s /etc/hostname ]]; then
    out=$(grep "^[[:alnum:]].*$" /etc/hostname | wc -l)
-   if [ $out -eq 1 ]; then
+   if [[ $out -eq 1 ]]; then
       out=$(cat /etc/hostname)
       lib_smartdc_info "Using /etc/hostname to set system hostname to $out"
       hostname "$out"
@@ -28,7 +28,7 @@ fi
 
 mdata_hostname=$($MDATA_GET_BIN "hostname" 2>>/dev/console)
 
-if [ $? -eq 0 -a ! -z "$mdata_hostname" ]; then  
+if [[ $? -eq 0 -a ! -z "$mdata_hostname" ]]; then  
    lib_smartdc_info "Metadata hostname set to $mdata_hostname"
    lib_smartdc_info "Setting hostname to $mdata_hostname"
    hostname "$mdata_hostname"

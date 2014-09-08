@@ -15,6 +15,7 @@ if [[ $? -eq 0 && -f $SCRIPT ]] ; then
     $SCRIPT
     operator_script_exit=$?
     if [[ ${operator_script_exit} -gt 0 ]]; then
-        lib_smartdc_info "WARNING: operator-script failed: exited ${operator_script_exit}"
+        lib_smartdc_info "WARNING: operator-script failed: exited \
+          ${operator_script_exit}"
     fi
 fi

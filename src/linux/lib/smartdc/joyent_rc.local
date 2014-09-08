@@ -17,7 +17,7 @@
 setup_redhat() {
   # CentOS does something interesting to the serial devices.
   # We run a dummy query
-  if [ ! -f $MDATA_GET_BIN ]; then
+  if [[ ! -f $MDATA_GET_BIN ]]; then
      lib_smartdc_info "ERROR: File not found $MDATA_GET_BIN"
   fi
     
@@ -37,7 +37,7 @@ setup_redhat() {
     ifup $i
     # Redhat is even worse, in that we have to send gratuitious
     # arps for some reason to update the neighbouring cache
-    if [ -f $SEND_ARP_UPDATES_BIN ]; then 
+    if [[ -f $SEND_ARP_UPDATES_BIN ]]; then 
        out=$($SEND_ARP_UPDATES_BIN) 
     else
        lib_smartdc_info "ERROR: File not found $SEND_ARP_UPDATES_BIN"
@@ -48,7 +48,8 @@ setup_redhat() {
 # Debian and Ubuntu
 setup_debian() {
   # regenerate SSH keys if they're missing
-  which dpkg-reconfigure >/dev/null 2>&1 || lib_smartdc_info "ERROR: dpkg-reconfigure not found" 
+  which dpkg-reconfigure >/dev/null 2>&1 || lib_smartdc_info "ERROR: \
+    dpkg-reconfigure not found" 
   keycount=$(find /etc/ssh -name 'ssh_host_*_key*' | wc -l)
   if [[ $keycount -eq 0 ]] ; then 
     lib_smartdc_info "reconfiguring openssh server"
@@ -76,13 +77,15 @@ setup_debian() {
     ifup $i
   done
 
-  ## work around for http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=550883
+  ## work around for 
+  # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=550883
   NFS_ENTRIES=$(grep -e "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\:\/.*[ \t]*\/.*[ \t]*nfs[ \t]*.*$" /etc/fstab | wc -l)
   NFS_MOUNTS=$($MOUNT_BIN | grep -e "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\:\/.*[ \t]*.*type nfs.*$" | wc -l)
 
-  if [ $NFS_ENTRIES -ne $NFS_MOUNTS ]; then
+  if [[ $NFS_ENTRIES -ne $NFS_MOUNTS ]]; then
      lib_smartdc_info " ERROR: NFS mount mismatch."
-     lib_smartdc_info " ERROR: $NFS_ENTRIES in /etc/fstab vs $NFS_MOUNTS mounted."
+     lib_smartdc_info " ERROR: $NFS_ENTRIES in /etc/fstab vs \
+       $NFS_MOUNTS mounted."
      lib_smartdc_info " ERROR: Issuing $MOUNT_BIN -a to ensure all is mounted."
      $MOUNT_BIN -a
   fi
