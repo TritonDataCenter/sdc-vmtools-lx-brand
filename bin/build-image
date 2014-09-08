@@ -32,7 +32,7 @@ create_zip() {
   echo "==> Creating zipfile"
   cd cache
   ZIP=`which zip`
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     echo "Cannot find a zip tool. Skipping zip file creation"
   else
     $ZIP -q -r sdc-vm-tools-$timestamp.zip sdc-vm-tools
@@ -50,8 +50,8 @@ pack_iso() {
         -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
       ;;
     SunOS)
-      mkisofs -J -R -input-charset iso8859-1 -V "SDC Guest Tools" -o sdc-vm-tools-$timestamp.iso \
-    			  sdc-vm-tools
+      mkisofs -J -R -input-charset iso8859-1 -V "SDC Guest Tools" \
+        -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
       ;;
     *)
       fatal "Not a supported Operating system. Try it on OSX or SmartOS"
