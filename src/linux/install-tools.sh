@@ -21,15 +21,20 @@ print_prompt() {
   echo "root administrator ssh keys, as well as tools to automatically" 
   echo "format secondary disks, and other generic tools."
   echo "Tools will be located in /lib/smartdc, but will not be included in"
-  echo "your \$PATH environment variable automatically"
+  echo "your \$PATH environment variable automatically."
+  echo
+  echo "To bypass this prompt, run the script with the '-y' flag:"
+  echo
+  echo "e.g. $0 -y"
   echo
   echo
   
-  while true ; do
-    yn=N
-    read -p "Do you want to continue (y/N) " yn
+  yn=
+  while [[ $yn == "" ]]; do
+    read -p "Do you want to continue? (Y/N): " yn
     case $yn in
       [Yy]* )
+      echo "Begining installation."
         break
         ;;
       [Nn]* )
@@ -40,6 +45,7 @@ print_prompt() {
         ;;
       esac
   done
+
 }
 
 install_tools() {
@@ -76,30 +82,29 @@ if [[ $EUID -ne 0 ]] ; then
 fi
 
 ## MAIN ##
-while getopts  ":y" opt; do
-  case "${opt}" in
-    y)
-      break
-      ;;
-    *)
-      print_prompt
-      ;;
-  esac
-done 
+if [[ $# -eq 0 ]]; then
+  print_prompt
+fi
 
+# The -y flag circumvents the prompt
+if [[ $1 != "-y" ]]; then
+  print_prompt
+fi
 
-case `uname -s` in
+OS=$(uname -s)
+
+case $OS in
   Linux)
     if [[ -f /etc/redhat-release ]] ; then
       install_redhat
     elif [[ -f /etc/debian_version ]] ; then
       install_debian
     else
-      fatal "Sorry. Your OS is not supported by this installer"
+      fatal "Sorry. Your OS ($OS) is not supported by this installer"
     fi
     ;;
   *)
-    fatal "Sorry. Your OS is not supported by this installer"
+    fatal "Sorry. Your OS ($OS) is not supported by this installer"
     ;;
 esac
 
