@@ -16,8 +16,9 @@
 # to remove $USER_SCRIPT_LOCKFILE so that userscript is ran
 run_userscript_flag=$($MDATA_GET_BIN run_userscript_flag 2>>/dev/console)
 
-if [[ "$run_userscript_flag" = "TRUE" -o "$run_userscript_flag" = "true" -o \
-  "$run_userscript_flag" = "True" ]]; then     
+# Convert to lowercase
+userscript_flag=$(echo $run_userscript_flag | tr '[:upper:]' '[:lower:]')
+if [[ "$userscript_flag" = "true" ]]; then
   lib_smartdc_info "Metadata field run_userscript_flag set to - \
     $run_userscript_flag"
   lib_smartdc_info "Removing $USER_SCRIPT_LOCKFILE"
