@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -o errexit
+set -o pipefail
+
 fatal() {
   printf "%s\n" "$@"
   exit 1
@@ -81,6 +84,7 @@ while getopts  ":y" opt; do
     *)
       print_prompt
       ;;
+  esac
 done 
 
 
