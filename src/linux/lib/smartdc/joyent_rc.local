@@ -35,8 +35,7 @@ setup_redhat() {
     echo "ONBOOT=\"yes\"" >> $config
     echo "BOOTPROTO=\"dhcp\"" >> $config
     ifup $i
-    # Redhat is even worse, in that we have to send gratuitious
-    # arps for some reason to update the neighbouring cache
+    # Send gratuitous arp packets to force an arp cache update
     if [[ -f $SEND_ARP_UPDATES_BIN ]]; then 
        out=$($SEND_ARP_UPDATES_BIN) 
     else

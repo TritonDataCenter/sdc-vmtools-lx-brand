@@ -1,8 +1,12 @@
 #!/bin/bash
 #
 # Copyright (c) 2012 Joyent Inc., All rights reserved.
-# resets ARP for VM to clear up issue
-# How is that for specific?
+#
+# Per JPC-527 and NET-145:
+# CentOS and other RHEL based systems don't send a gratuitous arp packet if 
+# they're started with DHCP and don't have a lease.
+#
+# This script sends gratuitous arp packets to force an arp cache update
 
 # load common functions and vars
 . /lib/smartdc/lib_smartdc_scripts.cfg
