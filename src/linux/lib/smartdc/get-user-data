@@ -10,6 +10,11 @@
 . /lib/smartdc/lib_smartdc_scripts.cfg
 
 lib_smartdc_info "Retrieving metadata user-data"
+
+if [[ ! -d /var/db ]]; then
+    mkdir -p /var/db
+fi
+
 $MDATA_GET_BIN user-data >/var/db/mdata-user-data.new
 case $? in
   0)
