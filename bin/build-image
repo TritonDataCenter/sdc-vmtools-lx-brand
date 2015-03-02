@@ -15,16 +15,16 @@ fatal() {
 create_layout() {
   echo "==> Copying files and creating layout"
   [[ ! -d cache ]] && mkdir cache
-  [[ ! -d cache/sdc-vm-tools ]] && mkdir cache/sdc-vm-tools
-  cp -r layout/* cache/sdc-vm-tools/
-  cp -r src/windows cache/sdc-vm-tools/
-  cp -r src/linux cache/sdc-vm-tools/
+  [[ ! -d cache/sdc-vmtools-lxbrand ]] && mkdir cache/sdc-vmtools-lxbrand
+  cp -r layout/* cache/sdc-vmtools-lxbrand/
+  cp -r src/windows cache/sdc-vmtools-lxbrand/
+  cp -r src/linux cache/sdc-vmtools-lxbrand/
 }
 
 pack_tar() {
   echo "==> Creating tarball"
   cd cache
-  tar -czf sdc-vm-tools-$timestamp.tar.gz sdc-vm-tools
+  tar -czf sdc-vmtools-lxbrand-$timestamp.tar.gz sdc-vmtools-lxbrand
   cd ../
 }
 
@@ -35,7 +35,7 @@ create_zip() {
   if [[ $? -ne 0 ]]; then
     echo "Cannot find a zip tool. Skipping zip file creation"
   else
-    $ZIP -q -r sdc-vm-tools-$timestamp.zip sdc-vm-tools
+    $ZIP -q -r sdc-vmtools-lxbrand-$timestamp.zip sdc-vmtools-lxbrand
   fi
   cd ../
 }
@@ -47,11 +47,11 @@ pack_iso() {
   case `uname -s` in
     Darwin)
       hdiutil makehybrid -default-volume-name "SDC Guest Tools" -iso -joliet \
-        -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
+        -o sdc-vmtools-lxbrand-$timestamp.iso sdc-vmtools-lxbrand
       ;;
     SunOS)
       mkisofs -J -R -input-charset iso8859-1 -V "SDC Guest Tools" \
-        -o sdc-vm-tools-$timestamp.iso sdc-vm-tools
+        -o sdc-vmtools-lxbrand-$timestamp.iso sdc-vmtools-lxbrand
       ;;
     *)
       fatal "Not a supported Operating system. Try it on OSX or SmartOS"
