@@ -1,8 +1,0 @@
-rescan
-select disk 1
-attributes disk clear readonly
-online disk
-create partition
-format fs=ntfs quick
-exit
-

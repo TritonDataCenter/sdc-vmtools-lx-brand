@@ -3,12 +3,7 @@
 The VM Guest tools contains scripts and drivers that are used to create
 virtualized machine images in SmartOS.
 
-## Windows
 
-The windows directory contains signed VirtIO drivers, as well as some scripts
-and binaries that are used to retrieve metadata from the metadata API. In
-addition, sample sysprep files are provided that you can use to create your own
-windows images. 
 
 ## Linux
 
