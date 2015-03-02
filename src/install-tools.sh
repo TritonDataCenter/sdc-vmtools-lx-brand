@@ -13,7 +13,7 @@ fatal() {
 print_prompt() {
   clear
   echo "--------------------------------------------------------------------"
-  echo " SmartOS VM Guest Tools - Install (Linux)"
+  echo "  SmartOS lx-brand VM Guest Tools - Install"
   echo "--------------------------------------------------------------------"
   echo  
   echo "This script will install startup tools for SmartOS virtual machine"
