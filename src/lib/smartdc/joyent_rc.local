@@ -35,12 +35,6 @@ setup_redhat() {
     echo "ONBOOT=\"yes\"" >> $config
     echo "BOOTPROTO=\"dhcp\"" >> $config
     ifup $i
-    # Send gratuitous arp packets to force an arp cache update
-    if [[ -f $SEND_ARP_UPDATES_BIN ]]; then 
-       out=$($SEND_ARP_UPDATES_BIN) 
-    else
-       lib_smartdc_info "ERROR: File not found $SEND_ARP_UPDATES_BIN"
-    fi
   done
 }
 
