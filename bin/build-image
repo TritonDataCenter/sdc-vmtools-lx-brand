@@ -17,7 +17,6 @@ create_layout() {
   [[ ! -d cache ]] && mkdir cache
   [[ ! -d cache/sdc-vmtools-lxbrand ]] && mkdir cache/sdc-vmtools-lxbrand
   cp -r layout/* cache/sdc-vmtools-lxbrand/
-  cp -r src/windows cache/sdc-vmtools-lxbrand/
   cp -r src/linux cache/sdc-vmtools-lxbrand/
 }
 
