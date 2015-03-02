@@ -8,9 +8,6 @@
 
 lib_smartdc_info "Start of $(basename $0) script"
 
-# Set root password if root_pw is set in the image manifest
-(/lib/smartdc/set-rootpassword)
-
 # Set hostid
 (/lib/smartdc/set-hostid)
 
