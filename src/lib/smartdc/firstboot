@@ -8,9 +8,6 @@
 
 lib_smartdc_info "Start of $(basename $0) script"
 
-# Set hostid
-(/lib/smartdc/set-hostid)
-
 # Format disk
 (/lib/smartdc/format-secondary-disk)
 
