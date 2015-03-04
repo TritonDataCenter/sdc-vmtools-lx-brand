@@ -58,15 +58,11 @@ install_tools() {
 install_debian() {
   install_tools
   echo "Installing debian-flavour specific files..."
-  # Install packages required for guest tools
-  apt-get install -y -q parted
 }
 
 install_redhat() {
   install_tools
   echo "Installing redhat-flavour specific files..."
-  # Install packages required for guest tools
-  yum install -y -q parted
   
   # On CentOS 7 systemd is the default.
   # make /etc/rc.d/rc.local executable to enable rc.local Compatibility unit
