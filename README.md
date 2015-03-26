@@ -1,6 +1,6 @@
 # SmartOS lx-brand VM Guest Tools
 
-The VM Guest tools contains scripts and drivers that are used to create SmartOS lx-brand images.
+The VM Guest tools contains scripts that are used to create SmartOS lx-brand images.
 
 
 ## Building
