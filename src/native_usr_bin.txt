@@ -1,0 +1,16 @@
+mdb
+pcred
+pfiles
+pflags
+pldd
+prstat
+prun
+psig
+pstack
+pstop
+ptime
+pwait
+pwdx
+truss
+kstat
+zonename
