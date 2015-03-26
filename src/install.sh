@@ -3,12 +3,12 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-fatal() {
+function fatal() {
   printf "%s\n" "$@"
   exit 1
 }
 
-install_tools() {
+function install_tools() {
   echo "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
   
   # /native/usr/bin 
@@ -38,13 +38,13 @@ install_tools() {
   echo "MANPATH /native/usr/share/man" >> /etc/man.config
 }
 
-install_debian() {
+function install_debian() {
   install_tools
   echo "Installing custom rc.local file to /etc/rc.local..."
   cp ./lib/smartdc/joyent_rc.local /etc/rc.local
 }
 
-install_redhat() {
+function install_redhat() {
   install_tools
   echo "Installing custom rc.local file to /etc/rc.d/rc.local..."
   cp ./lib/smartdc/joyent_rc.local /etc/rc.d/rc.local
