@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o pipefail
+set -euo pipefail
+IFS=$'\n\t'
 
 fatal() {
   printf "%s\n" "$@"
