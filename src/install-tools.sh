@@ -31,6 +31,11 @@ install_tools() {
   echo "Adding wrapper scripts"
   cp ./usr/bin/* /usr/bin/
   cp ./usr/sbin/* /usr/sbin/
+  
+  echo "Adding /native/usr/share/man to manpath"
+  # This should make most of the man pages in /native available
+  # for the symlinks we added
+  echo "MANPATH /native/usr/share/man" >> /etc/man.config
 }
 
 install_debian() {
