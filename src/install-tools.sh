@@ -8,46 +8,6 @@ fatal() {
   exit 1
 }
 
-
-# TODO: Note that mdata get tools are installed in /usr/sbin/
-print_prompt() {
-  clear
-  echo "--------------------------------------------------------------------"
-  echo "  SmartOS lx-brand VM Guest Tools - Install"
-  echo "--------------------------------------------------------------------"
-  echo  
-  echo "This script will install startup tools for SmartOS virtual machine"
-  echo "guests. This includes an rc.local script which will be used to set"
-  echo "root administrator ssh keys, as well as tools to automatically" 
-  echo "format secondary disks, and other generic tools."
-  echo "Tools will be located in /lib/smartdc, but will not be included in"
-  echo "your \$PATH environment variable automatically."
-  echo
-  echo "To bypass this prompt, run the script with the '-y' flag:"
-  echo
-  echo "e.g. $0 -y"
-  echo
-  echo
-  
-  yn=
-  while [[ $yn == "" ]]; do
-    read -p "Do you want to continue? (Y/N): " yn
-    case $yn in
-      [Yy]* )
-      echo "Begining installation."
-        break
-        ;;
-      [Nn]* )
-        exit
-        ;;
-      *)
-        echo "Plese answer either 'y' or 'n'"
-        ;;
-      esac
-  done
-
-}
-
 install_tools() {
   echo "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
   # /native/usr/bin
@@ -105,14 +65,6 @@ if [[ $EUID -ne 0 ]] ; then
 fi
 
 ## MAIN ##
-if [[ $# -eq 0 ]]; then
-  print_prompt
-fi
-
-# The -y flag circumvents the prompt
-if [[ $1 != "-y" ]]; then
-  print_prompt
-fi
 
 OS=$(uname -s)
 
