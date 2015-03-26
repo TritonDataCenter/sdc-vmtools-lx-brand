@@ -42,6 +42,7 @@ install_tools() {
   
   echo "Adding wrapper scripts"
   cp ./usr/bin/* /usr/bin/
+  cp ./usr/sbin/* /usr/sbin/
 }
 
 install_debian() {
