@@ -26,6 +26,7 @@ install_tools() {
   ln -s /native/usr/bin/pwdx /usr/bin/pwdx
   ln -s /native/usr/bin/truss /usr/bin/truss
   ln -s /native/usr/bin/kstat /usr/bin/kstat
+  ln -s /native/usr/bin/zonename /usr/bin/zonename
   
   # /native/sbin
   ln -s /native/usr/sbin/cpustat /usr/sbin/cpustat
