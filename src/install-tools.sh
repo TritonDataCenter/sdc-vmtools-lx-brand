@@ -79,6 +79,9 @@ install_tools() {
   
   echo "Copying mdata-* man pages"
   cp -r ./usr/share/man/man1/mdata-* /usr/share/man/man1/
+  
+  echo "Adding wrapper scripts"
+  cp ./usr/bin/* /usr/bin/
 }
 
 install_debian() {
