@@ -52,7 +52,7 @@ install_debian() {
 
 install_redhat() {
   install_tools
-  echo "Installing redhat-flavour specific files..."
+  echo "Installing custom rc.local file to /etc/rc.d/rc.local..."
   cp ./lib/smartdc/joyent_rc.local /etc/rc.d/rc.local
   
   # On CentOS 7 systemd is the default.
