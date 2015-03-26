@@ -49,26 +49,29 @@ print_prompt() {
 }
 
 install_tools() {
-  echo "Installing SmartOS VM Guest Tools..."
-  cp -r ./lib/smartdc /lib/
-  cp -r ./usr/sbin/mdata-* /usr/sbin/
+  echo "Creating mdata-* symlinks..."
+  ln -s /native/usr/sbin/mdata-get /usr/sbin/mdata-get
+  ln -s /native/usr/sbin/mdata-put /usr/sbin/mdata-put
+  ln -s /native/usr/sbin/mdata-delete /usr/sbin/mdata-delete
+  ln -s /native/usr/sbin/mdata-list /usr/sbin/mdata-list
+  
+  echo "Copying mdata-* man pages"
   cp -r ./usr/share/man/man1/mdata-* /usr/share/man/man1/
-  mv /etc/rc.local /etc/rc.local-backup
-  ln -s /lib/smartdc/joyent_rc.local /etc/rc.local
 }
 
 install_debian() {
   install_tools
-  echo "Installing debian-flavour specific files..."
+  echo "Installing custom rc.local file to /etc/rc.local..."
+  cp ./lib/smartdc/joyent_rc.local /etc/rc.local
 }
 
 install_redhat() {
   install_tools
   echo "Installing redhat-flavour specific files..."
+  cp ./lib/smartdc/joyent_rc.local /etc/rc.d/rc.local
   
   # On CentOS 7 systemd is the default.
   # make /etc/rc.d/rc.local executable to enable rc.local Compatibility unit
-  ln -s /lib/smartdc/joyent_rc.local /etc/rc.d/rc.local
   chmod 755 /etc/rc.d/rc.local
 }
 
