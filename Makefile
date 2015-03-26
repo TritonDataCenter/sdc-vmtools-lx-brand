@@ -17,8 +17,6 @@ ifeq ($(UNAME), SunOS)
 	CC = gcc
 endif
 
-RESTDOWN = restdown
-
 clean:
 	@echo "Cleaning"
 	rm -fr cache
