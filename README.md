@@ -3,10 +3,8 @@
 The VM Guest tools contains scripts that are used to create SmartOS lx-brand images.
 
 
-## Building
+## Installing
 
-To build the ISO, tar and zip files run:
+To install the guest tools, run the ./install.sh script with the -i flag specifing the install path:
 
-```
-make all
-```
+    ./install.sh -i /data/chroot
