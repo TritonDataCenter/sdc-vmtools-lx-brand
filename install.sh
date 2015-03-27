@@ -47,7 +47,7 @@ if [[ $# -eq 0 ]]; then
 	exit 1
 fi
 
-if [[ ! -a "$INSTALL_DIR" ]]; then
+if [[ ! -a "$INSTALL_DIR" ]] ; then
 	fatal "==> Directory $INSTALL_DIR not found"
 	exit 1
 fi
