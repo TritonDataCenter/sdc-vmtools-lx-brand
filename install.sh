@@ -19,6 +19,8 @@ cat <<EOF
 EOF
 }
 
+INSTALL_DIR=
+
 while getopts "hi:" OPTION
 do
   case $OPTION in
