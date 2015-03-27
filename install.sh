@@ -118,10 +118,6 @@ function install_redhat() {
 	chmod 755 $INSTALL_DIR/etc/rc.d/rc.local
 }
 
-if [[ $EUID -ne 0 ]] ; then
-	fatal "You must be root to run this command"
-fi
-
 ## MAIN ##
 
 OS=$(uname -s)
