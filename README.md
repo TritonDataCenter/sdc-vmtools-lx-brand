@@ -5,6 +5,6 @@ The VM Guest tools contains scripts that are used to create SmartOS lx-brand ima
 
 ## Installing
 
-To install the guest tools, run the ./install.sh script with the -i flag specifing the install path:
+To install the guest tools, run the ./install.sh script with the -i flag specifying the install path:
 
     ./install.sh -i /data/chroot
