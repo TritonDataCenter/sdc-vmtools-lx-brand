@@ -111,7 +111,7 @@ function install_tools() {
 			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/sbin/${wrapper} "$@"
 		
 			WRAPPER
-			chmod 755 $INSTALL_DIR/usr/bin/${wrapper}
+			chmod 755 $INSTALL_DIR/usr/sbin/${wrapper}
 		else
 			info "Binary /usr/sbin/${binary} exits. Skipping."
 		fi
