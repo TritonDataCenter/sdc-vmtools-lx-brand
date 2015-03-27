@@ -51,7 +51,7 @@ if [[ $# -eq 0 ]]; then
 	exit 1
 fi
 
-if [[ ! -a "$INSTALL_DIR" ]] ; then
+if [[ ! -e "$INSTALL_DIR" ]] ; then
 	fatal "==> Directory $INSTALL_DIR not found"
 	exit 1
 fi
@@ -63,7 +63,7 @@ function install_tools() {
 	NATIVE_USR_BIN=$(cat ./src/native_usr_bin.txt)
 	
 	for binary in $NATIVE_USR_BIN; do
-		if [[ ! -f $INSTALL_DIR/usr/bin/${binary} ]]; then
+		if [[ ! -e $INSTALL_DIR/usr/bin/${binary} ]]; then
 			chroot $INSTALL_DIR ln -s /native/usr/bin/${binary} /usr/bin/${binary}
 		else
 			info "Binary /usr/bin/${binary} exits. Skipping."
@@ -74,7 +74,7 @@ function install_tools() {
 	NATIVE_USR_SBIN=$(cat ./src/native_usr_sbin.txt)
 	
 	for binary in $NATIVE_USR_SBIN; do
-		if [[ ! -f $INSTALL_DIR/usr/sbin/${binary} ]]; then
+		if [[ ! -e $INSTALL_DIR/usr/sbin/${binary} ]]; then
 			chroot $INSTALL_DIR ln -s /native/usr/sbin/${binary} /usr/sbin/${binary}
 		else
 			info "Binary /usr/sbin/${binary} exits. Skipping."
@@ -87,7 +87,7 @@ function install_tools() {
 	WRAPPER_USR_BIN=$(cat ./src/wrapper_usr_bin.txt)
 	
 	for wrapper in $WRAPPER_USR_BIN; do
-		if [[ ! -f $INSTALL_DIR/usr/bin/${wrapper} ]]; then
+		if [[ ! -e $INSTALL_DIR/usr/bin/${wrapper} ]]; then
 			cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
 			#!/bin/sh
 	
@@ -103,7 +103,7 @@ function install_tools() {
 	WRAPPER_USR_SBIN=$(cat ./src/wrapper_usr_sbin.txt)
 	
 	for wrapper in $WRAPPER_USR_SBIN; do
-		if [[ ! -f $INSTALL_DIR/usr/bin/${wrapper} ]]; then
+		if [[ ! -e $INSTALL_DIR/usr/bin/${wrapper} ]]; then
 			cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
 			#!/bin/sh
 
