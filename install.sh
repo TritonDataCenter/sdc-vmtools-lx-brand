@@ -38,11 +38,11 @@ while getopts "hi:" OPTION; do
 done
 
 function info() {
-	printf "%s\n" "$@"
+	printf "%s\n" "--> $@"
 }
 
 function fatal() {
-	printf "%s\n" "$@"
+	printf "%s\n" "--> $@"
 	exit 1
 }
 
@@ -52,12 +52,12 @@ if [[ $# -eq 0 ]]; then
 fi
 
 if [[ ! -e "$INSTALL_DIR" ]] ; then
-	fatal "==> Directory $INSTALL_DIR not found"
+	fatal "Directory $INSTALL_DIR not found"
 	exit 1
 fi
 
 function install_tools() {
-	echo "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
+	info "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
 	
 	# /native/usr/bin 
 	NATIVE_USR_BIN=$(cat ./src/native_usr_bin.txt)
@@ -81,7 +81,7 @@ function install_tools() {
 		fi
 	done
 	
-	echo "Creating wrapper scripts"
+	info "Creating wrapper scripts"
 	
 	# /native/usr/bin 
 	WRAPPER_USR_BIN=$(cat ./src/wrapper_usr_bin.txt)
@@ -117,7 +117,7 @@ function install_tools() {
 		fi
 	done
 	
-	echo "Adding /native/usr/share/man to manpath"
+	info "Adding /native/usr/share/man to manpath"
 	# This should make most of the man pages in /native available
 	# for the symlinks we added
 	echo "/n" >> $INSTALL_DIR/etc/man.config
@@ -126,13 +126,13 @@ function install_tools() {
 
 function install_debian() {
 	install_tools
-	echo "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
+	info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
 	cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
 }
 
 function install_redhat() {
 	install_tools
-	echo "Installing custom rc.local file to $INSTALL_DIR/etc/rc.d/rc.local..."
+	info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.d/rc.local..."
 	cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.d/rc.local
 	
 	# On CentOS 7 systemd is the default.
@@ -159,6 +159,4 @@ case $OS in
 		;;
 esac
 
-echo 
-echo "All done!"
-echo 
+info "Guest tools installed!"
