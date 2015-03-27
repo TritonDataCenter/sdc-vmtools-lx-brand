@@ -68,9 +68,33 @@ function install_tools() {
     chroot $INSTALL_DIR ln -s /native/usr/sbin/${binary} /usr/sbin/${binary}
   done
   
-  echo "Adding wrapper scripts"
-  cp ./usr/bin/* $INSTALL_DIR/usr/bin/
-  cp ./usr/sbin/* $INSTALL_DIR/usr/sbin/
+  echo "Creating wrapper scripts"
+  
+  # /native/usr/bin 
+  WRAPPER_USR_BIN=$(cat ./wrapper_usr_bin.txt)
+  
+  for wrapper in $WRAPPER_USR_BIN; do
+    cat << WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
+    #!/bin/sh
+
+    exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 \
+      -e LD_NOCONFIG=1 /usr/bin/${wrapper} "$@"
+    
+    WRAPPER
+  done
+  
+  # /native/usr/sbin 
+  WRAPPER_USR_SBIN=$(cat ./wrapper_usr_sbin.txt)
+  
+  for wrapper in $WRAPPER_USR_SBIN; do
+    cat << WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
+    #!/bin/sh
+
+    exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 \
+      -e LD_NOCONFIG=1 /usr/sbin/${wrapper} "$@"
+    
+    WRAPPER
+  done
   
   echo "Adding /native/usr/share/man to manpath"
   # This should make most of the man pages in /native available
