@@ -52,11 +52,6 @@ if [[ ! -a "$INSTALL_DIR" ]]; then
   exit 1
 fi
 
-if [[ "$(echo $INSTALL_DIR | cut -c 1)" != "/" ]]; then
-  fatal "==> The specified install path must be absolute"
-  exit 1
-fi
-
 function install_tools() {
   echo "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
   
