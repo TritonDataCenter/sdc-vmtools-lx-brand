@@ -37,6 +37,10 @@ while getopts "hi:" OPTION; do
 		esac
 done
 
+function info() {
+	printf "%s\n" "$@"
+}
+
 function fatal() {
 	printf "%s\n" "$@"
 	exit 1
@@ -59,14 +63,22 @@ function install_tools() {
 	NATIVE_USR_BIN=$(cat ./src/native_usr_bin.txt)
 	
 	for binary in $NATIVE_USR_BIN; do
-		chroot $INSTALL_DIR ln -s /native/usr/bin/${binary} /usr/bin/${binary}
+		if [[ ! -f $INSTALL_DIR/usr/bin/${binary} ]]; then
+			chroot $INSTALL_DIR ln -s /native/usr/bin/${binary} /usr/bin/${binary}
+		else
+			info "Binary /usr/bin/${binary} exits. Skipping."
+		fi
 	done
 	
 	# /native/usr/sbin
 	NATIVE_USR_SBIN=$(cat ./src/native_usr_sbin.txt)
 	
 	for binary in $NATIVE_USR_SBIN; do
-		chroot $INSTALL_DIR ln -s /native/usr/sbin/${binary} /usr/sbin/${binary}
+		if [[ ! -f $INSTALL_DIR/usr/sbin/${binary} ]]; then
+			chroot $INSTALL_DIR ln -s /native/usr/sbin/${binary} /usr/sbin/${binary}
+		else
+			info "Binary /usr/sbin/${binary} exits. Skipping."
+		fi
 	done
 	
 	echo "Creating wrapper scripts"
@@ -75,24 +87,32 @@ function install_tools() {
 	WRAPPER_USR_BIN=$(cat ./src/wrapper_usr_bin.txt)
 	
 	for wrapper in $WRAPPER_USR_BIN; do
-		cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
-		#!/bin/sh
-		
-		exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/bin/${wrapper} "$@"
-		
-		WRAPPER
+		if [[ ! -f $INSTALL_DIR/usr/bin/${wrapper} ]]; then
+			cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
+			#!/bin/sh
+	
+			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/bin/${wrapper} "$@"
+	
+			WRAPPER
+		else
+			info "Binary /usr/sbin/${binary} exits. Skipping."
+		fi
   done
 	
 	# /native/usr/sbin 
 	WRAPPER_USR_SBIN=$(cat ./src/wrapper_usr_sbin.txt)
 	
 	for wrapper in $WRAPPER_USR_SBIN; do
-		cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
-		#!/bin/sh
+		if [[ ! -f $INSTALL_DIR/usr/bin/${wrapper} ]]; then
+			cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
+			#!/bin/sh
 
-		exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/sbin/${wrapper} "$@"
+			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/sbin/${wrapper} "$@"
 		
-		WRAPPER
+			WRAPPER
+		else
+			info "Binary /usr/sbin/${binary} exits. Skipping."
+		fi
 	done
 	
 	echo "Adding /native/usr/share/man to manpath"
