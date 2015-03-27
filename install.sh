@@ -103,8 +103,8 @@ function install_tools() {
 	WRAPPER_USR_SBIN=$(cat ./src/wrapper_usr_sbin.txt)
 	
 	for wrapper in $WRAPPER_USR_SBIN; do
-		if [[ ! -e $INSTALL_DIR/usr/bin/${wrapper} ]]; then
-			cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
+		if [[ ! -e $INSTALL_DIR/usr/sbin/${wrapper} ]]; then
+			cat <<- WRAPPER > $INSTALL_DIR/usr/sbin/${wrapper}
 			#!/bin/sh
 
 			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/sbin/${wrapper} "$@"
