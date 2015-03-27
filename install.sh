@@ -28,7 +28,7 @@ while getopts "hi:" OPTION; do
 			exit 1
 			;;
 		i)
-			INSTALL_DIR="$OPTARG"
+			INSTALL_DIR=${OPTARG%/}
 			;;
 		?)
 			usage
