@@ -91,7 +91,6 @@ function install_tools() {
 	info "Adding /native/usr/share/man to manpath"
 	# This should make most of the man pages in /native available
 	# for the symlinks we added
-	echo "/n" >> $INSTALL_DIR/etc/man.config
 	echo "MANPATH /native/usr/share/man" >> $INSTALL_DIR/etc/man.config
 }
 
