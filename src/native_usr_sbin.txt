@@ -1,7 +1,0 @@
-cpustat
-dtrace
-mdata-get
-mdata-put
-mdata-delete
-mdata-list
-plockstat

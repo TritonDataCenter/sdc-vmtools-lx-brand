@@ -15,5 +15,5 @@ To install the guest tools, run the ./install.sh script with the -i flag specify
 The `install.sh` script installs the following:
 
 - rc.local boot scripts from `src/lib/smartdc`
-- Symlinks to binaries found in `/native`. See `native_usr_bin.txt` and `native_usr_sbin.txt` for the list of relevant binaries
-- Wrapper scripts for binaries in `/native`. See `wrapper_usr_bin.txt` and `wrapper_usr_sbin.txt` for the list of relevant binaries
+- Symlinks to binaries found in `/native`. See `symlinks.txt` for the list of relevant binaries
+- Wrapper scripts for binaries in `/native`. See `wrappers.txt` for the list of relevant binaries

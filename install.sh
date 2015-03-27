@@ -57,65 +57,37 @@ if [[ ! -e "$INSTALL_DIR" ]] ; then
 fi
 
 function install_tools() {
-	info "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
+	info "Creating symlinks for binaries found in /native"
+
+	SYMLINKS=$(cat ./src/symlinks.txt)
 	
-	# /native/usr/bin 
-	NATIVE_USR_BIN=$(cat ./src/native_usr_bin.txt)
-	
-	for binary in $NATIVE_USR_BIN; do
-		if [[ ! -e $INSTALL_DIR/usr/bin/${binary} ]]; then
-			chroot $INSTALL_DIR ln -s /native/usr/bin/${binary} /usr/bin/${binary}
+	# Note Values for ${binary} must be the full path
+	for binary in $SYMLINKS; do
+		if [[ ! -e $INSTALL_DIR${binary} ]]; then
+			chroot $INSTALL_DIR ln -s /native${binary} ${binary}
 		else
-			info "Binary /usr/bin/${binary} exits. Skipping."
+			info "Binary ${binary} exits in installtion. Skipping symlink creation."
 		fi
 	done
 	
-	# /native/usr/sbin
-	NATIVE_USR_SBIN=$(cat ./src/native_usr_sbin.txt)
+	info "Creating wrapper scripts for binaries in /native"
 	
-	for binary in $NATIVE_USR_SBIN; do
-		if [[ ! -e $INSTALL_DIR/usr/sbin/${binary} ]]; then
-			chroot $INSTALL_DIR ln -s /native/usr/sbin/${binary} /usr/sbin/${binary}
-		else
-			info "Binary /usr/sbin/${binary} exits. Skipping."
-		fi
-	done
+	WRAPPERS=$(cat ./src/wrappers.txt)
 	
-	info "Creating wrapper scripts"
-	
-	# /native/usr/bin 
-	WRAPPER_USR_BIN=$(cat ./src/wrapper_usr_bin.txt)
-	
-	for wrapper in $WRAPPER_USR_BIN; do
-		if [[ ! -e $INSTALL_DIR/usr/bin/${wrapper} ]]; then
-			cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
+	# Note Values for ${wrapper} must be the full path 
+	for wrapper in $WRAPPERS; do
+		if [[ ! -e $INSTALL_DIR${wrapper} ]]; then
+			cat <<- WRAPPER > $INSTALL_DIR${wrapper}
 			#!/bin/sh
 	
-			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/bin/${wrapper} "$@"
+			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 ${wrapper} "$@"
 	
 			WRAPPER
-			chmod 755 $INSTALL_DIR/usr/bin/${wrapper}
+			chmod 755 $INSTALL_DIR${wrapper}
 		else
-			info "Binary /usr/sbin/${binary} exits. Skipping."
+			info "Binary ${binary} exits in installtion. Skipping wrapper creation."
 		fi
   done
-	
-	# /native/usr/sbin 
-	WRAPPER_USR_SBIN=$(cat ./src/wrapper_usr_sbin.txt)
-	
-	for wrapper in $WRAPPER_USR_SBIN; do
-		if [[ ! -e $INSTALL_DIR/usr/sbin/${wrapper} ]]; then
-			cat <<- WRAPPER > $INSTALL_DIR/usr/sbin/${wrapper}
-			#!/bin/sh
-
-			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 /usr/sbin/${wrapper} "$@"
-		
-			WRAPPER
-			chmod 755 $INSTALL_DIR/usr/sbin/${wrapper}
-		else
-			info "Binary /usr/sbin/${binary} exits. Skipping."
-		fi
-	done
 	
 	info "Adding /native/usr/share/man to manpath"
 	# This should make most of the man pages in /native available

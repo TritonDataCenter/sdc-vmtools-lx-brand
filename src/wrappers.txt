@@ -1,0 +1,4 @@
+/usr/bin/arcstat
+/usr/bin/sysinfo
+/usr/bin/vfsstat
+/usr/sbin/zonememstat

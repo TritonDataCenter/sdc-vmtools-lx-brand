@@ -1,3 +1,0 @@
-arcstat
-sysinfo
-vfsstat
