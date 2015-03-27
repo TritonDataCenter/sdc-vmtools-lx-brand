@@ -65,7 +65,7 @@ function install_tools() {
 		if [[ ! -e $INSTALL_DIR${binary} ]]; then
 			chroot $INSTALL_DIR ln -s /native${binary} ${binary}
 		else
-			info "Binary ${binary} exits in installtion. Skipping symlink creation."
+			info "Binary ${binary} exits in installation. Skipping symlink creation."
 		fi
 	done
 	
@@ -84,7 +84,7 @@ function install_tools() {
 			WRAPPER
 			chmod 755 $INSTALL_DIR${wrapper}
 		else
-			info "Binary ${binary} exits in installtion. Skipping wrapper creation."
+			info "Binary ${binary} exits in installation. Skipping wrapper creation."
 		fi
   done
 	
