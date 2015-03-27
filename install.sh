@@ -56,14 +56,14 @@ function install_tools() {
 	echo "Creating symlinks for binaries found in /native (e.g., mdata-*, dtrace, prstat etc.)"
 	
 	# /native/usr/bin 
-	NATIVE_USR_BIN=$(cat ./native_usr_bin.txt)
+	NATIVE_USR_BIN=$(cat ./src/native_usr_bin.txt)
 	
 	for binary in $NATIVE_USR_BIN; do
 		chroot $INSTALL_DIR ln -s /native/usr/bin/${binary} /usr/bin/${binary}
 	done
 	
 	# /native/usr/sbin
-	NATIVE_USR_SBIN=$(cat ./native_usr_sbin.txt)
+	NATIVE_USR_SBIN=$(cat ./src/native_usr_sbin.txt)
 	
 	for binary in $NATIVE_USR_SBIN; do
 		chroot $INSTALL_DIR ln -s /native/usr/sbin/${binary} /usr/sbin/${binary}
@@ -72,7 +72,7 @@ function install_tools() {
 	echo "Creating wrapper scripts"
 	
 	# /native/usr/bin 
-	WRAPPER_USR_BIN=$(cat ./wrapper_usr_bin.txt)
+	WRAPPER_USR_BIN=$(cat ./src/wrapper_usr_bin.txt)
 	
 	for wrapper in $WRAPPER_USR_BIN; do
 		cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
@@ -84,7 +84,7 @@ function install_tools() {
   done
 	
 	# /native/usr/sbin 
-	WRAPPER_USR_SBIN=$(cat ./wrapper_usr_sbin.txt)
+	WRAPPER_USR_SBIN=$(cat ./src/wrapper_usr_sbin.txt)
 	
 	for wrapper in $WRAPPER_USR_SBIN; do
 		cat <<- WRAPPER > $INSTALL_DIR/usr/bin/${wrapper}
@@ -105,13 +105,13 @@ function install_tools() {
 function install_debian() {
 	install_tools
 	echo "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
-	cp ./lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
+	cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
 }
 
 function install_redhat() {
 	install_tools
 	echo "Installing custom rc.local file to $INSTALL_DIR/etc/rc.d/rc.local..."
-	cp ./lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.d/rc.local
+	cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.d/rc.local
 	
 	# On CentOS 7 systemd is the default.
 	# make /etc/rc.d/rc.local executable to enable rc.local Compatibility unit
