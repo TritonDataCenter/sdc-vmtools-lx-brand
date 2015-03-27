@@ -10,7 +10,6 @@ cat <<EOF
 	e.g. $0 -i /data/chroot
 
 	Install the lx-brand guest tools for a given installation path.
-	The directory path must be absolute with not trailing slashes.
 	
 	OPTIONS:
 	-i The path to the given Linux installation
