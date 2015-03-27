@@ -21,8 +21,7 @@ EOF
 
 INSTALL_DIR=
 
-while getopts "hi:" OPTION
-do
+while getopts "hi:" OPTION; do
   case $OPTION in
     h)
       usage
@@ -43,8 +42,13 @@ function fatal() {
   exit 1
 }
 
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 1
+fi
+
 if [[ ! -a "$INSTALL_DIR" ]]; then
-  pfatal"==> Directory $INSTALL_DIR not found"
+  fatal "==> Directory $INSTALL_DIR not found"
   exit 1
 fi
 
