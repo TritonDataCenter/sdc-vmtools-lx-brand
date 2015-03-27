@@ -79,7 +79,7 @@ function install_tools() {
 			cat <<- WRAPPER > $INSTALL_DIR${wrapper}
 			#!/bin/sh
 	
-			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 ${wrapper} "$@"
+			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 ${wrapper} "\$@"
 	
 			WRAPPER
 			chmod 755 $INSTALL_DIR${wrapper}
