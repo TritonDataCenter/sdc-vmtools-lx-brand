@@ -1,14 +1,16 @@
 # SmartOS lx-brand VM Guest Tools
 
-The VM Guest tools contains scripts that are used to create SmartOS lx-brand images.
+This repo is used to install the guest tools for lx-brand images. The guest tools are required for enabling ssh key creation and meta data (user-sript, operator-script etc.) functionality. This repo, via the `install.sh` script, also creates symlinks and wrapper scripts for binaries found in `/native` in an lx-brand zone. See below for details.
 
+## Status
+
+This software is still under active development and should be used with care.
 
 ## Installing
 
 To install the guest tools, run the ./install.sh script with the -i flag specifying the install path:
 
     ./install.sh -i /data/chroot
-
 
 ## What Gets Installed
 
