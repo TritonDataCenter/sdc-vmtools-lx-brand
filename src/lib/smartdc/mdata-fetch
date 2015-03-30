@@ -37,7 +37,7 @@ case $? in
     ;;
 esac
 
-echo "Retrieving metadata user-script..."
+smartdc_info "Retrieving metadata user-script..."
 $MDATA_GET user-script >/var/svc/mdata-user-script.new
 case $? in
   0)
@@ -54,7 +54,7 @@ case $? in
     ;;
 esac
 
-echo "Retrieving metadata operator-script..."
+smartdc_info "Retrieving metadata operator-script..."
 $MDATA_GET sdc:operator-script >/var/svc/mdata-operator-script.new
 case $? in
   0)
@@ -73,7 +73,7 @@ esac
 
 
 if [[ ! -f /root/.ssh/authorized_keys ]]; then
-    echo "Retrieving root's authorized_keys..."
+    smartdc_info "Retrieving root's authorized_keys..."
     mkdir -p /root/.ssh
 		
     $MDATA_GET root_authorized_keys > /root/.ssh/authorized_keys.new
