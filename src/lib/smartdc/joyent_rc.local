@@ -25,11 +25,18 @@ set -o xtrace
 # XXX resolvers
 # XXX static routes
 
-# XXX This probably needs to just happen at first boot.
-# This is only relevant for Ubuntu/Debian (dpkg-reconfigure)
-keycount=$(find /etc/ssh -name 'ssh_host_*_key*' | wc -l)
-if [[ $keycount -eq 0 ]] ; then 
-  echo "ssh_host keys missing. Regenerating..."
-  dpkg-reconfigure openssh-server
-fi
+# OS specific setup
+case $(uname -s | tr '[:upper:]' '[:lower:]') in
+  linux)
+    if [[ -f /etc/debian-release ]] ; then
+      /lib/smartdc/debian
+    elif [[ -f /etc/redhat_version ]] ; then
+			/lib/smartdc/redhat
+    fi
+    ;;
+  *)
+    smartdc_info "WARNING: OS specific features not implemented"
+    ;;
+esac
+
 

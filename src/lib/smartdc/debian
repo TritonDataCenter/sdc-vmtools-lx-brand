@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Debian/Ubuntu specific setup
+
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+# Add ssh host keys if they are missing.
+# XXX This probably needs to just happen at first boot.
+keycount=$(find /etc/ssh -name 'ssh_host_*_key*' | wc -l)
+if [[ $keycount -eq 0 ]] ; then 
+  echo "ssh_host keys missing. Regenerating..."
+  dpkg-reconfigure openssh-server
+fi
