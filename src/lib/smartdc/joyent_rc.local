@@ -11,9 +11,6 @@
 #
 # By default this script does nothing.
 
-# XXX for now this is just a hack to get us past provisioning, this stuff all
-#     needs to find a more permanent home in the images.
-
 export PS4='[\D{%FT%TZ}] $(tty): ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 export BASH_XTRACEFD=4
 set -o xtrace
