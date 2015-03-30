@@ -18,3 +18,5 @@ if [[ $keycount -eq 0 ]] ; then
   echo "ssh_host keys missing. Regenerating..."
   dpkg-reconfigure openssh-server
 fi
+
+exit 0
