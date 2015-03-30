@@ -9,4 +9,4 @@ export BASH_XTRACEFD=4
 set -o xtrace
 
 # load common functions and vars
-. /lib/smartdc/lib_smartdc_scripts.cfg
+. /lib/smartdc/common.lib
