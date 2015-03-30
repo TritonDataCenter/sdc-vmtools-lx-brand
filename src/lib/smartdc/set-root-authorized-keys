@@ -18,9 +18,9 @@ overwrite_authorized_flag=$($MDATA_GET_BIN overwrite_root_akeys 2>>/dev/console)
 overwrite_flag=$(echo $overwrite_authorized_flag | tr '[:upper:]' '[:lower:]')
 
 if [[ "$overwrite_flag" == "overwrite" ]]; then
-   lib_smartdc_info "Metadata field overwrite_root_akeys set to - \
+   smartdc_info "Metadata field overwrite_root_akeys set to - \
      $overwrite_authorized_flag - Overwriting /root/.ssh/authorized_keys"
-   lib_smartdc_info "Removing /root/.ssh/authorized_keys"
+   smartdc_info "Removing /root/.ssh/authorized_keys"
    rm -f /root/.ssh/authorized_keys
 fi
 
@@ -31,7 +31,7 @@ if [[ ! -f /root/.ssh/authorized_keys ]]; then
     if [[ -n ${authorized_keys} ]]; then
         mkdir -p /root/.ssh
         echo -e "${authorized_keys}" > /root/.ssh/authorized_keys
-        lib_smartdc_info "Creating /root/.ssh/authorized_keys with Metadata \
+        smartdc_info "Creating /root/.ssh/authorized_keys with Metadata \
           field root_authorized_keys"
         chmod 700 /root/.ssh
         chmod 600 /root/.ssh/authorized_keys
