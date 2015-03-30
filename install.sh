@@ -88,6 +88,9 @@ function install_tools() {
 		fi
   done
 	
+	info "Copying ./lib/smartdc to $INSTALL_DIR/lib/"
+	cp -r ./lib/smartdc /lib/
+	
 }
 
 function install_debian() {
