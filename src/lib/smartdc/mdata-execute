@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Execute metadata scripts operator-script and user-script
+
+set -o xtrace
+
+# load common functions and vars
+. /lib/smartdc/lib_smartdc_scripts.cfg
+
+# If we got as far as running the user-script the 'provision' was a success
+# from here out a failure will leave the zone running.
+if [ -f /var/svc/provisioning ]; then
+    mv /var/svc/provision{ing,_success}
+fi
+
+if [[ -x /var/svc/mdata-operator-script ]]; then
+    /var/svc/mdata-operator-script
+    operator_script_exit=$?
+    if [[ ${operator_script_exit} -gt 0 ]]; then
+        smartdc_info "WARNING: operator-script failed: exited \
+					${operator_script_exit}" >&2
+    fi
+fi
+
+
+user_script_exit=0
+if [ -x /var/svc/mdata-user-script ]; then
+    /var/svc/mdata-user-script
+    [[ $? -gt 0 ]] && user_script_exit=95
+fi
+
+exit ${user_script_exit}
