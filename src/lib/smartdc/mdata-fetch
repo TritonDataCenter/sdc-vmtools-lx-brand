@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Fetch metadata via /native/usr/sbin/mdata-get
+
+export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+export BASH_XTRACEFD=4
+set -o xtrace
+
+# load common functions and vars
+. ./lib/smartdc/common.lib
+
+if [[ ! -d /var/svc ]]; then
+    mkdir -p /var/svc
+fi
+
+if [[ ! -d /var/db ]]; then
+    mkdir -p /var/db
+fi
+
+
+smartdc_info "Retrieving metadata user-data"
+
+$MDATA_GET user-data >/var/db/mdata-user-data.new
+case $? in
+  0)
+    smartdc_info "Metadata user-data successfuly retrieved."
+    mv /var/db/mdata-user-data{.new,}
+    ;;
+  1)
+    smartdc_info "Metadata user-data not defined."
+    rm -f /var/db/mdata-user-data{,.new}
+    ;;
+  *)
+    smartdc_fatal "Metadata couldn't be retrieved."
+    ;;
+esac
+
+smartdc_info "Retrieving metadata user-script..."
+$MDATA_GET user-script >/var/svc/mdata-user-script.new
+case $? in
+  0)
+    smartdc_info "Metadata user-script successfuly retrieved."
+    mv /var/svc/mdata-user-script{.new,}
+    chmod +x /var/svc/mdata-user-script
+    ;;
+  1)
+    smartdc_info "Metadata user-script not defined."
+    rm -f /var/svc/mdata-user-script{,.new}
+    ;;
+  *)
+    smartdc_fatal "Metadata couldn't be retrieved."
+    ;;
+esac
+
+smartdc_info "Retrieving metadata operator-script..."
+$MDATA_GET sdc:operator-script >/var/svc/mdata-operator-script.new
+case $? in
+  0)
+    smartdc_info "Metadata operator-script successfuly retrieved."
+    mv /var/svc/mdata-operator-script{.new,}
+    chmod +x /var/svc/mdata-operator-script
+    ;;
+  1)
+    smartdc_info "Metadata operator-script not defined."
+    rm -f /var/svc/mdata-operator-script{,.new}
+    ;;
+  *)
+    smartdc_fatal "Metadata couldn't be retrieved."
+    ;;
+esac
+
+
+if [[ ! -f /root/.ssh/authorized_keys ]]; then
+    smartdc_info "Retrieving root's authorized_keys..."
+    mkdir -p /root/.ssh
+		
+    $MDATA_GET root_authorized_keys > /root/.ssh/authorized_keys.new
+    case $? in
+        0)
+            smartdc_info "root_authorized_keys successfuly retrieved."
+            mv /root/.ssh/authorized_keys{.new,}
+            chmod 600 /root/.ssh/authorized_keys
+            chmod 700 /root/.ssh
+            ;;
+        1)
+            smartdc_info "root_authorized_keys not defined."
+            rm -f /var/svc/mdata-operator-script{,.new}
+            ;;
+        *)
+            smartdc_fatal "Metadata couldn't be retrieved."
+            ;;
+    esac
+fi
+
+exit 0
