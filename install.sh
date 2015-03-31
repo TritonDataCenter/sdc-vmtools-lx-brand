@@ -3,7 +3,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-function usage() {
+usage() {
 cat <<EOF
 
 	Usage: $0 -i {absolute path to installation}
@@ -36,11 +36,11 @@ while getopts "hi:" OPTION; do
 		esac
 done
 
-function info() {
+info() {
 	printf "%s\n" "--> $@"
 }
 
-function fatal() {
+fatal() {
 	printf "%s\n" "--> $@"
 	exit 1
 }
@@ -55,7 +55,7 @@ if [[ ! -e "$INSTALL_DIR" ]] ; then
 	exit 1
 fi
 
-function install_tools() {
+install_tools() {
 	info "Creating symlinks for binaries found in /native"
 
 	SYMLINKS=$(cat ./src/symlinks.txt)
@@ -93,7 +93,7 @@ function install_tools() {
 	
 }
 
-function install_debian() {
+install_debian() {
 	install_tools
 	
 	info "Adding /native/usr/share/man to manpath"
@@ -110,7 +110,7 @@ function install_debian() {
 	cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
 }
 
-function install_redhat() {
+install_redhat() {
 	install_tools
 	
 	info "Adding /native/usr/share/man to manpath"
