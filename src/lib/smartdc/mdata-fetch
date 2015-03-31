@@ -75,7 +75,7 @@ esac
 if [[ ! -f /root/.ssh/authorized_keys ]]; then
     smartdc_info "Retrieving root's authorized_keys..."
     mkdir -p /root/.ssh
-		
+    
     $MDATA_GET root_authorized_keys > /root/.ssh/authorized_keys.new
     case $? in
         0)

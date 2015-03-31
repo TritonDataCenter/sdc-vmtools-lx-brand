@@ -20,7 +20,7 @@ case $(uname -s | tr '[:upper:]' '[:lower:]') in
     if [[ -f /etc/debian-release ]] ; then
       /lib/smartdc/debian
     elif [[ -f /etc/redhat_version ]] ; then
-			/lib/smartdc/redhat
+      /lib/smartdc/redhat
     fi
     ;;
   *)

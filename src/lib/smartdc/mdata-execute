@@ -22,7 +22,7 @@ if [[ -x /var/svc/mdata-operator-script ]]; then
     operator_script_exit=$?
     if [[ ${operator_script_exit} -gt 0 ]]; then
         smartdc_info "WARNING: operator-script failed: exited \
-					${operator_script_exit}" >&2
+          ${operator_script_exit}" >&2
     fi
 fi
 
