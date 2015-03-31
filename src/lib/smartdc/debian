@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Debian/Ubuntu specific setup
+
+export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+export BASH_XTRACEFD=4
+set -o xtrace
+
+# load common functions and vars
+. ./lib/smartdc/common.lib
+
+# Add ssh host keys if they are missing.
+# XXX This probably needs to just happen at first boot.
+keycount=$(find /etc/ssh -name 'ssh_host_*_key*' | wc -l)
+if [[ $keycount -eq 0 ]] ; then 
+  smartdc_info "ssh_host keys missing. Regenerating..."
+  dpkg-reconfigure openssh-server
+fi
+
+exit 0

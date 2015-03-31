@@ -1,0 +1,30 @@
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Common variables used by scripts in /lib/smartdc
+
+# location of binaries that functions use
+LOGGER=$(which logger 2> /dev/null)
+
+MDATA_GET='/native/usr/sbin/mdata-get'
+
+# Common functions used by scripts /lib/smartdc
+
+smartdc_fatal() {
+  echo " "
+  printf "(fatal) %s\n" "$@"
+  echo " "
+  echo " "
+  $LOGGER "(fatal) - $0 - $@"
+  exit 1
+}
+
+smartdc_info() {
+  printf "(info) %s\n" "$@"
+  $LOGGER "(info) - $0 - $@"
+}
+
+# start of main
+
+export -f smartdc_fatal
+export -f smartdc_info
