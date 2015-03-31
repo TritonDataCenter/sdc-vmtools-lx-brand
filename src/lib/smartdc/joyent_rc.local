@@ -3,6 +3,7 @@
 # Copyright (c) 2015, Joyent, Inc. All rights reserved.
 #
 
+exec 4>>/var/log/rc-local.log
 export PS4='[\D{%FT%TZ}] $(tty): ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 export BASH_XTRACEFD=4
 set -o xtrace
@@ -17,9 +18,9 @@ set -o xtrace
 # OS specific setup
 case $(uname -s | tr '[:upper:]' '[:lower:]') in
   linux)
-    if [[ -f /etc/debian-release ]] ; then
+    if [[ -f /etc/debian_version ]] ; then
       /lib/smartdc/debian
-    elif [[ -f /etc/redhat_version ]] ; then
+    elif [[ -f /etc/redhat-release ]] ; then
       /lib/smartdc/redhat
     fi
     ;;
