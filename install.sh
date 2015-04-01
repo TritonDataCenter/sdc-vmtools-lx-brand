@@ -88,8 +88,8 @@ install_tools() {
 		fi
   done
 	
-	info "Copying ./lib/smartdc to $INSTALL_DIR/lib/"
-	cp -r ./lib/smartdc /lib/
+	info "Copying ./src/lib/smartdc to $INSTALL_DIR/lib/"
+	cp -r ./src/lib/smartdc $INSTALL_DIR/lib/
 	
 }
 
