@@ -78,14 +78,24 @@ install_tools() {
 	
 	# Note Values for ${wrapper} must be the full path 
 	for wrapper in $WRAPPERS; do
-		if [[ ! -e $INSTALL_DIR${wrapper} ]]; then
-			cat <<- WRAPPER > $INSTALL_DIR${wrapper}
+    binary=$(echo ${wrapper} | cut -f1 -d' ')
+    binary_type=$(echo ${wrapper} | cut -f2 -d' ')
+		if [[ ! -e $INSTALL_DIR${binary} ]]; then
+      if [[ "${binary_type}" -eq "bash" ]]; then
+        ARG=/usr/bin/bash
+      elif [[ "${binary_type}" -eq "sh" ]]; then
+        ARG=/usr/bin/sh
+      else
+        ARG=
+      fi
+      
+			cat <<- WRAPPER > $INSTALL_DIR${binary}
 			#!/bin/sh
 	
-			exec /native/usr/sbin/chroot /native /lib/ld.so.1 -e LD_NOENVIRON=1 -e LD_NOCONFIG=1 ${wrapper} "\$@"
+			exec /native/usr/sbin/chroot /native ${ARG} ${binary} "\$@"
 	
 			WRAPPER
-			chmod 755 $INSTALL_DIR${wrapper}
+			chmod 755 $INSTALL_DIR${binary}
 		else
 			info "Binary ${binary} exits in installation. Skipping wrapper creation."
 		fi

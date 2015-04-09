@@ -1,4 +1,4 @@
-/usr/bin/arcstat
-/usr/bin/sysinfo
-/usr/bin/vfsstat
-/usr/sbin/zonememstat
+/usr/bin/arcstat perl
+/usr/bin/sysinfo bash
+/usr/bin/vfsstat perl
+/usr/sbin/zonememstat sh
