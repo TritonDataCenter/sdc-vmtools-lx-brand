@@ -1,4 +1,2 @@
-/usr/bin/arcstat perl
 /usr/bin/sysinfo bash
-/usr/bin/vfsstat perl
 /usr/sbin/zonememstat sh
