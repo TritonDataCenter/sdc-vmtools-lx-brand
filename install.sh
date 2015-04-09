@@ -111,13 +111,13 @@ install_debian() {
   
   info "Adding /native/usr/share/man to manpath"
   
-  cat <<- MAN >> $INSTALL_DIR/etc/manpath.config
-  
-  # Include man pages for wrapper scripts and sylinks
-  # that reference binaries in /native
-  MANDATORY_MANPATH /native/usr/share/man
+cat << MAN >> $INSTALL_DIR/etc/manpath.config
 
-  MAN
+# Include man pages for wrapper scripts and sylinks
+# that reference binaries in /native
+MANDATORY_MANPATH /native/usr/share/man
+
+MAN
   
   info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
   cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
@@ -128,13 +128,13 @@ install_redhat() {
   
   info "Adding /native/usr/share/man to manpath"
   
-  cat <<- MAN >> $INSTALL_DIR/etc/man.config
-  
-  # Include man pages for wrapper scripts and sylinks
-  # that reference binaries in /native
-  MANPATH /native/usr/share/man
+cat << MAN >> $INSTALL_DIR/etc/man.config
 
-  MAN
+# Include man pages for wrapper scripts and sylinks
+# that reference binaries in /native
+MANPATH /native/usr/share/man
+
+MAN
   
   info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.d/rc.local..."
   cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.d/rc.local
