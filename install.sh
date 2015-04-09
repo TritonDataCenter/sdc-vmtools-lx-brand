@@ -81,9 +81,9 @@ install_tools() {
     binary=$(echo ${wrapper} | cut -f1 -d' ')
     binary_type=$(echo ${wrapper} | cut -f2 -d' ')
     if [[ ! -e $INSTALL_DIR${binary} ]]; then
-      if [[ "${binary_type}" -eq "bash" ]]; then
+      if [[ "${binary_type}" == "bash" ]]; then
         ARG=/usr/bin/bash
-      elif [[ "${binary_type}" -eq "sh" ]]; then
+      elif [[ "${binary_type}" == "sh" ]]; then
         ARG=/usr/bin/sh
       else
         ARG=
