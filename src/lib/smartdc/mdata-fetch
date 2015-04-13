@@ -8,11 +8,11 @@
 . ./lib/smartdc/common.lib
 
 if [[ ! -d /var/svc ]]; then
-    mkdir -p /var/svc
+  mkdir -p /var/svc
 fi
 
 if [[ ! -d /var/db ]]; then
-    mkdir -p /var/db
+  mkdir -p /var/db
 fi
 
 
