@@ -4,10 +4,6 @@
 #
 # Debian/Ubuntu specific setup
 
-export PS4='[\D{%FT%TZ}] $(tty): ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
-export BASH_XTRACEFD=4
-set -o xtrace
-
 # load common functions and vars
 . ./lib/smartdc/common.lib
 
