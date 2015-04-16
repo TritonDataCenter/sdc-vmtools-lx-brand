@@ -9,7 +9,7 @@
 
 # If we got as far as running the user-script the 'provision' was a success
 # from here out a failure will leave the zone running.
-if [ -f /var/svc/provisioning ]; then
+if [[ -f /var/svc/provisioning ]]; then
   smartdc_info "Marking provision as successful: /var/svc/provision_success"
   mv /var/svc/provision{ing,_success}
 fi
@@ -26,7 +26,7 @@ fi
 
 
 user_script_exit=0
-if [ -x /var/svc/mdata-user-script ]; then
+if [[ -x /var/svc/mdata-user-script ]]; then
   smartdc_info "Executing metadata user-script"
   /var/svc/mdata-user-script
   [[ $? -gt 0 ]] && user_script_exit=95
