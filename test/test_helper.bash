@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
 setup() {
   
   # Create mock up test environment in TMP
@@ -16,19 +21,6 @@ setup() {
   
   # Crete reuired binaries for chroot
   cp /bin/* $TMP/bin
-  
-  # Create /native symlinks for content in src/symlinks.txt
-  SYMLINKS=$(cat ./src/symlinks.txt)
-  for binary in $SYMLINKS; do
-    cp /native${binary} $TMP/native${binary}
-  done
-  
-  # Create /native symlinks for content in src/wrappers.txt
-  WRAPPERS=$(cat ./src/wrappers.txt)
-  for wrapper in $WRAPPERS; do
-    binary=$(echo ${wrapper} | cut -f1 -d' ')
-    cp /native${binary} $TMP/native${binary}
-  done
   
   OS=$(uname -s)
 
