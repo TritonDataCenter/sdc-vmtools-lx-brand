@@ -21,3 +21,4 @@
 /usr/sbin/mdata-delete
 /usr/sbin/mdata-list
 /usr/sbin/plockstat
+/usr/sbin/zfs
