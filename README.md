@@ -21,7 +21,15 @@ The `install.sh` script installs the following:
 - Wrapper scripts for binaries in `/native`. See `wrappers.txt` for the list of relevant binaries
 - A custom `rc.local` file (`/etc/rc.d/rc.local` or `/etc/rc.local` depending on the distrubution)
 
-## Testing
+## Development
+
+### Bash Style
+
+To enusre the scripts are consistent with the Joyent style guidelines, use ./tools/bashstyle:
+
+    ./tools/bashstyle install.sh
+
+### Testing
 
 Tests are executed using [Bats](https://github.com/sstephenson/bats) and an found in `test`.
 
