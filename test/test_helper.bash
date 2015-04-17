@@ -10,18 +10,20 @@ setup() {
   mkdir -p $TMP/lib
   mkdir -p $TMP/native/usr/bin
   mkdir -p $TMP/native/usr/sbin
+  mkdir -p $TMP/usr/bin
+  mkdir -p $TMP/usr/sbin
   
   # Create /native symlinks for content in src/symlinks.txt
   SYMLINKS=$(cat ./src/symlinks.txt)
   for binary in $SYMLINKS; do
-    ln -s /native${binary} $TMP${binary}
+    ln -s /native${binary} $TMP/native${binary}
   done
   
   # Create /native symlinks for content in src/wrappers.txt
   WRAPPERS=$(cat ./src/wrappers.txt)
   for wrapper in $WRAPPERS; do
     binary=$(echo ${wrapper} | cut -f1 -d' ')
-    ln -s /native${binary} $TMP${binary}
+    ln -s /native${binary} $TMP/native${binary}
   done
   
   OS=$(uname -s)
