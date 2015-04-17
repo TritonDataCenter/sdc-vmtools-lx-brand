@@ -20,3 +20,17 @@ The `install.sh` script installs the following:
 - Symlinks to binaries found in `/native`. See `symlinks.txt` for the list of relevant binaries
 - Wrapper scripts for binaries in `/native`. See `wrappers.txt` for the list of relevant binaries
 - A custom `rc.local` file (`/etc/rc.d/rc.local` or `/etc/rc.local` depending on the distrubution)
+
+## Testing
+
+Tests are executed using [Bats](https://github.com/sstephenson/bats) and an found in `test`.
+
+To install Dats:
+
+    $ git clone https://github.com/sstephenson/bats.git
+    $ cd bats
+    $ [sudo] ./install.sh /usr/local
+    
+Run the tests with:
+
+    bats test
