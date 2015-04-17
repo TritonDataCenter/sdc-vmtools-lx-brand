@@ -31,9 +31,9 @@ To enusre the scripts are consistent with the Joyent style guidelines, use ./too
 
 ### Testing
 
-Tests are executed using [Bats](https://github.com/sstephenson/bats) and an found in `test`.
+Tests are executed using [Bats](https://github.com/sstephenson/bats) and xan found in `test`.
 
-To install Dats:
+To install Bats:
 
     $ git clone https://github.com/sstephenson/bats.git
     $ cd bats
