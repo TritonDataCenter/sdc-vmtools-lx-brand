@@ -21,6 +21,23 @@ setup() {
   cp /usr/bin/* $TMP/usr/bin
   cp /usr/sbin/* $TMP/usr/sbin
   
+  # Remove copied symlinks and wrappers of they exist
+  
+  SYMLINKS=$(cat ./src/symlinks.txt)
+  for binary in $SYMLINKS; do
+    if [[ -e $TMP${binary} ]]; then
+      rm -rf $TMP${binary}
+    fi
+  done
+  
+  WRAPPERS=$(cat ./src/wrappers.txt)
+  for wrapper in $WRAPPERS; do
+    binary=$(echo ${wrapper} | cut -f1 -d' ')
+    if [[ -e $TMP${binary} ]]; then
+      rm -rf $TMP${binary}
+    fi
+  done
+  
   OS=$(uname -s)
 
   case $OS in
