@@ -16,8 +16,10 @@ setup() {
   mkdir -p $TMP/usr/bin
   mkdir -p $TMP/usr/sbin
   
-  # Crete reuired binaries for chroot
+  # Crete required binaries for chroot
   cp /bin/* $TMP/bin
+  cp /usr/bin/* $TMP/usr/bin
+  cp /usr/sbin/* $TMP/usr/sbin
   
   OS=$(uname -s)
 
