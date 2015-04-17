@@ -6,6 +6,7 @@ setup() {
   
   
   # Create all the expected directories
+  mkdir -p $TMP/bin
   mkdir -p $TMP/etc/rc.d/
   mkdir -p $TMP/lib
   mkdir -p $TMP/native/usr/bin
@@ -13,17 +14,20 @@ setup() {
   mkdir -p $TMP/usr/bin
   mkdir -p $TMP/usr/sbin
   
+  # Crete reuired binaries for chroot
+  cp /bin/* $TMP/bin
+  
   # Create /native symlinks for content in src/symlinks.txt
   SYMLINKS=$(cat ./src/symlinks.txt)
   for binary in $SYMLINKS; do
-    ln -s /native${binary} $TMP/native${binary}
+    cp /native${binary} $TMP/native${binary}
   done
   
   # Create /native symlinks for content in src/wrappers.txt
   WRAPPERS=$(cat ./src/wrappers.txt)
   for wrapper in $WRAPPERS; do
     binary=$(echo ${wrapper} | cut -f1 -d' ')
-    ln -s /native${binary} $TMP/native${binary}
+    cp /native${binary} $TMP/native${binary}
   done
   
   OS=$(uname -s)
