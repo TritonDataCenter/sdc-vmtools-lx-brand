@@ -18,11 +18,11 @@ setup() {
       elif [[ -f /etc/debian_version ]] ; then
         cp /etc/debian_version $TMP/etc/debian_version
       else
-        fatal "$OS is not supported."
+        echo "$OS is not supported."
       fi
       ;;
     *)
-      fatal "$OS is not supported."
+      echo "$OS is not supported."
       ;;
   esac
 }
