@@ -7,7 +7,6 @@
 # load common functions and vars
 . ./lib/smartdc/common.lib
 
-
 smartdc_info "Mounting all ZFS filesystems"
 
 /native/usr/sbin/zfs mount -va

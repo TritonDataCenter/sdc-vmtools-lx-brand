@@ -7,13 +7,6 @@
 # load common functions and vars
 . ./lib/smartdc/common.lib
 
-# If we got as far as running the user-script the 'provision' was a success
-# from here out a failure will leave the zone running.
-if [[ -f /var/svc/provisioning ]]; then
-  smartdc_info "Marking provision as successful: /var/svc/provision_success"
-  mv /var/svc/provision{ing,_success}
-fi
-
 if [[ -x /var/svc/mdata-operator-script ]]; then
   smartdc_info "Executing metadata operator-script"
   /var/svc/mdata-operator-script
@@ -23,7 +16,6 @@ if [[ -x /var/svc/mdata-operator-script ]]; then
       ${operator_script_exit}" >&2
   fi
 fi
-
 
 user_script_exit=0
 if [[ -x /var/svc/mdata-user-script ]]; then
