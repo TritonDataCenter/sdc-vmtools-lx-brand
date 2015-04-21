@@ -4,7 +4,9 @@
 #
 
 (/lib/smartdc/mdata-fetch)
+(/lib/smartdc/mount-zfs)
 (/lib/smartdc/mdata-execute)
+
 
 # XXX tmpfs?
 # XXX resolvers
