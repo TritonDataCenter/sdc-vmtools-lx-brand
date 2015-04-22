@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Set provision state.
+#
+# Rename the file /var/svc/provisioning to /var/svc/provision_success
+# when we consider the provision to be successful.
+# This should happen after meta data is successfully retrieved.
+
+# load common functions and vars
+. ./lib/smartdc/common.lib
+
+# From this point on we consider a 'provision' was a success and a failure 
+# will leave the zone running.
+if [[ -f /var/svc/provisioning ]]; then
+  smartdc_info "Marking provision as successful: /var/svc/provision_success"
+  mv /var/svc/provision{ing,_success}
+fi
+
+exit 0

@@ -4,7 +4,10 @@
 #
 
 (/lib/smartdc/mdata-fetch)
+(/lib/smartdc/set-provision-state)
+(/lib/smartdc/mount-zfs)
 (/lib/smartdc/mdata-execute)
+
 
 # XXX tmpfs?
 # XXX resolvers

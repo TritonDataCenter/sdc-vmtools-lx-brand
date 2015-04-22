@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Mount all ZFS filesystems.
+
+# load common functions and vars
+. ./lib/smartdc/common.lib
+
+smartdc_info "Mounting all ZFS filesystems"
+
+/native/usr/sbin/zfs mount -va
+zfs_mount_exit=$?
+
+if [[ ${zfs_mount_exit} -gt 0 ]]; then
+  smartdc_info "WARNING: /native/usr/sbin/zfs mount -va failed: exited \
+    ${zfs_mount_exit}"
+fi
+
+exit 0
