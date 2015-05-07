@@ -65,7 +65,7 @@ install_tools() {
   
   # Note Values for ${binary} must be the full path
   for binary in $SYMLINKS; do
-    if [[ ! -e $INSTALL_DIR${binary} ]]; then
+    if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
       chroot $INSTALL_DIR ln -s /native${binary} ${binary}
     else
       info "Binary ${binary} exits in installation. Skipping symlink creation."
@@ -80,7 +80,7 @@ install_tools() {
   for wrapper in $WRAPPERS; do
     binary=$(echo ${wrapper} | cut -f1 -d' ')
     binary_type=$(echo ${wrapper} | cut -f2 -d' ')
-    if [[ ! -e $INSTALL_DIR${binary} ]]; then
+    if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
       if [[ "${binary_type}" == "bash" ]]; then
         ARG=/usr/bin/bash
       elif [[ "${binary_type}" == "sh" ]]; then
