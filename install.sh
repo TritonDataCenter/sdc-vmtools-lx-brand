@@ -172,7 +172,7 @@ case $OS in
       install_redhat
     elif [[ -f $INSTALL_DIR/etc/debian_version ]] ; then
       install_debian
-    elif [[ -f $INSTALL_DIR/etc/alpine-release ]]
+    elif [[ -f $INSTALL_DIR/etc/alpine-release ]] ; then
       install_alpine
     else
       fatal "Sorry. Your OS ($OS) is not supported."
