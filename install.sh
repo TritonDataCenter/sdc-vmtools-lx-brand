@@ -144,6 +144,24 @@ MAN
   chmod 755 $INSTALL_DIR/etc/rc.d/rc.local
 }
 
+install_alpine() {
+  install_tools
+  
+  info "Adding /native/usr/share/man to manpath"
+  
+cat << MAN >> $INSTALL_DIR/etc/man.conf
+
+# Include man pages for wrapper scripts and sylinks
+# that reference binaries in /native
+MANPATH /native/usr/share/man
+
+MAN
+  
+  info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
+  cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
+
+}
+
 ## MAIN ##
 
 OS=$(uname -s)
@@ -154,6 +172,8 @@ case $OS in
       install_redhat
     elif [[ -f $INSTALL_DIR/etc/debian_version ]] ; then
       install_debian
+    elif [[ -f $INSTALL_DIR/etc/alpine-release ]]
+      install_alpine
     else
       fatal "Sorry. Your OS ($OS) is not supported."
     fi
