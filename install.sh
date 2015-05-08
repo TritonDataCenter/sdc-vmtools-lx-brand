@@ -159,6 +159,7 @@ MAN
   
   info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
   cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/local.d/joyent.start
+  chmod +x $INSTALL_DIR/etc/local.d/joyent.start
 
 }
 
