@@ -101,23 +101,15 @@ chmod 755 $INSTALL_DIR${binary}
     fi
   done
   
+  info "Copying native_manpath.sh to $INSTALL_DIR/etc/profile.d/"
+  cp ./src/etc/profile.d/native_manpath.sh $INSTALL_DIR/etc/profile.d/
+  
   info "Copying ./src/lib/smartdc to $INSTALL_DIR/lib/"
   cp -r ./src/lib/smartdc $INSTALL_DIR/lib/
-  
 }
 
 install_debian() {
   install_tools
-  
-  info "Adding /native/usr/share/man to manpath"
-  
-cat << MAN >> $INSTALL_DIR/etc/manpath.config
-
-# Include man pages for wrapper scripts and sylinks
-# that reference binaries in /native
-MANDATORY_MANPATH /native/usr/share/man
-
-MAN
   
   info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
   cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.local
@@ -125,16 +117,6 @@ MAN
 
 install_redhat() {
   install_tools
-  
-  info "Adding /native/usr/share/man to manpath"
-  
-cat << MAN >> $INSTALL_DIR/etc/man.config
-
-# Include man pages for wrapper scripts and sylinks
-# that reference binaries in /native
-MANPATH /native/usr/share/man
-
-MAN
   
   info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.d/rc.local..."
   cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/rc.d/rc.local
@@ -147,20 +129,9 @@ MAN
 install_alpine() {
   install_tools
   
-  info "Adding /native/usr/share/man to manpath"
-  
-cat << MAN >> $INSTALL_DIR/etc/man.conf
-
-# Include man pages for wrapper scripts and sylinks
-# that reference binaries in /native
-MANPATH /native/usr/share/man
-
-MAN
-  
   info "Installing custom rc.local file to $INSTALL_DIR/etc/rc.local..."
   cp ./src/lib/smartdc/joyent_rc.local $INSTALL_DIR/etc/local.d/joyent.start
   chmod +x $INSTALL_DIR/etc/local.d/joyent.start
-
 }
 
 ## MAIN ##
