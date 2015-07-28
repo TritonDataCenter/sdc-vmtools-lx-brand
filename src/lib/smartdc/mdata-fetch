@@ -85,7 +85,7 @@ if [[ ! -f /root/.ssh/authorized_keys ]]; then
       ;;
     1)
       smartdc_info "root_authorized_keys not defined."
-      rm -f /var/svc/mdata-operator-script{,.new}
+      rm -f /root/.ssh/authorized_keys{,.new}
       ;;
     *)
       smartdc_fatal "Metadata couldn't be retrieved."
