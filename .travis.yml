@@ -10,7 +10,7 @@ script:
   - bash -n $(find src -type f |grep -v .txt)
   - tools/bashstyle install.sh
   - tools/bashstyle $(find src -type f | grep -v .txt)
-  - bats test/bats
+  - bats test/
 notifications:
   email:
     on_success: never
