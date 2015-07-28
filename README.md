@@ -1,5 +1,7 @@
 # SmartOS lx-brand Guest Tools
 
+[![Build Status](https://travis-ci.org/joyent/sdc-vmtools-lx-brand.svg?branch=master)](https://travis-ci.org/joyent/sdc-vmtools-lx-brand)
+
 This repo is used to install the guest tools for lx-brand images. The guest tools are required for enabling ssh key creation and meta data (user-sript, operator-script etc.) functionality. This repo, via the `install.sh` script, also creates symlinks and wrapper scripts for binaries found in `/native` in an lx-brand zone. See below for details.
 
 ## Status
