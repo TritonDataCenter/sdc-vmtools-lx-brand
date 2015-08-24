@@ -1,0 +1,38 @@
+#!/bin/ash
+
+usage() {
+cat <<EOF
+
+This is a wrapper script for the 'halt' and 'reboot' commands in Alpine Linux (and BusyBox). It provides compatibility when run under SmartOS lx-brand when issuing a 'vmadm stop' and 'vmadm reboot' command.
+
+Usage:
+  $0 -h
+  $0 -r
+
+OPTIONS:
+  -h Issue the 'halt' command
+  -r Issue the 'reboot' command
+
+EOF
+}
+
+while getopts "rh" OPTION
+do
+  case $OPTION in
+    h)
+      /sbin/halt
+      ;;
+    r)
+      /sbin/reboot
+      ;;
+    \?)
+      usage
+      exit
+      ;;
+  esac
+done
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 1
+fi
