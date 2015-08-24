@@ -3,7 +3,9 @@
 usage() {
 cat <<EOF
 
-This is a wrapper script for the 'halt' and 'reboot' commands in Alpine Linux (and BusyBox). It provides compatibility when run under SmartOS lx-brand when issuing a 'vmadm stop' and 'vmadm reboot' command.
+This is a wrapper script for the 'halt' and 'reboot' commands in Alpine Linux 
+(and BusyBox). It provides compatibility when run under SmartOS lx-brand when 
+issuing a 'vmadm stop' and 'vmadm reboot' command.
 
 Usage:
   $0 -h
