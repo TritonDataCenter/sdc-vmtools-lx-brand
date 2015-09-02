@@ -8,10 +8,12 @@
 . ./lib/smartdc/common.lib
 
 if [[ ! -d /var/svc ]]; then
+  smartdc_info "Creating /var/svc"
   mkdir -p /var/svc
 fi
 
 if [[ ! -d /var/db ]]; then
+  smartdc_info "Creating /var/db"
   mkdir -p /var/db
 fi
 
