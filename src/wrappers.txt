@@ -1,2 +1,0 @@
-/usr/bin/sysinfo bash
-/usr/sbin/zonememstat sh

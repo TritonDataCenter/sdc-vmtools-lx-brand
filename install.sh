@@ -72,35 +72,6 @@ install_tools() {
     fi
   done
   
-  info "Creating wrapper scripts for binaries in /native"
-  
-  WRAPPERS=$(cat ./src/wrappers.txt)
-  
-  # Note Values for ${wrapper} must be the full path 
-  for wrapper in $WRAPPERS; do
-    binary=$(echo ${wrapper} | cut -f1 -d' ')
-    binary_type=$(echo ${wrapper} | cut -f2 -d' ')
-    if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
-      if [[ "${binary_type}" == "bash" ]]; then
-        ARG=/usr/bin/bash
-      elif [[ "${binary_type}" == "sh" ]]; then
-        ARG=/usr/bin/sh
-      else
-        ARG=
-      fi
-      
-cat << WRAPPER > $INSTALL_DIR${binary}
-#!/bin/sh
-
-exec /native/usr/sbin/chroot /native ${ARG} ${binary} "\$@"
-
-WRAPPER
-chmod 755 $INSTALL_DIR${binary}
-    else
-      info "Binary ${binary} exits in installation. Skipping wrapper creation."
-    fi
-  done
-  
   info "Copying native_manpath.sh to $INSTALL_DIR/etc/profile.d/"
   cp ./src/etc/profile.d/native_manpath.sh $INSTALL_DIR/etc/profile.d/
   
