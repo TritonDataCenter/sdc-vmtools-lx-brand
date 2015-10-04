@@ -5,7 +5,7 @@
 # Execute metadata scripts operator-script and user-script
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib
 
 if [[ -x /var/svc/mdata-operator-script ]]; then
   smartdc_info "Executing metadata operator-script"

@@ -5,7 +5,7 @@
 # Debian/Ubuntu specific setup
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib
 
 # Add ssh host keys if they are missing.
 # XXX This probably needs to just happen at first boot.

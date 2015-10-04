@@ -5,7 +5,7 @@
 # Fetch metadata via /native/usr/sbin/mdata-get
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib
 
 if [[ ! -d /var/svc ]]; then
   smartdc_info "Creating /var/svc"

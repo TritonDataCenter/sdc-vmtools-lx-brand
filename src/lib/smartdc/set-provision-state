@@ -9,7 +9,7 @@
 # This should happen after meta data is successfully retrieved.
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib
 
 # From this point on we consider a 'provision' was a success and a failure 
 # will leave the zone running.

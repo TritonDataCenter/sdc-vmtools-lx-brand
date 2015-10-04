@@ -5,4 +5,4 @@
 # Alpine specific setup
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib

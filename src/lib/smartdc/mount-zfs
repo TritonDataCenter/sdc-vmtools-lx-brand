@@ -5,7 +5,7 @@
 # Mount all ZFS filesystems.
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib
 
 smartdc_info "Mounting all ZFS filesystems"
 
