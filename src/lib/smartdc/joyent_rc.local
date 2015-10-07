@@ -21,6 +21,8 @@ case $(uname -s | tr '[:upper:]' '[:lower:]') in
       /lib/smartdc/redhat
     elif [[ -f /etc/alpine-release ]] ; then
       /lib/smartdc/alpine
+    elif [[ -f /etc/arch-release ]] ; then
+      /lib/smartdc/archlinux
     fi
     ;;
   *)

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+#
+# Archlinux specific setup
+
+# load common functions and vars
+. /lib/smartdc/common.lib
