@@ -24,7 +24,8 @@ postgresql_mdata() {
     smartdc_info "got pgsql_password, configuring postgres";
     echo "${PGSQL_PASSWORD}" > /tmp/pgpasswd
 
-    [[ -d "/var/lib/postgresql/9.4/main" ]] && mv /var/lib/postgresql/9.4/main /var/lib/postgresql/9.4/main.${DATE}
+    [[ -d "/var/lib/postgresql/9.4/main" ]] && \
+       mv /var/lib/postgresql/9.4/main /var/lib/postgresql/9.4/main.${DATE}
 
     log "initializing PostgreSQL"
     su - postgres -c "/usr/lib/postgresql/9.4/bin/initdb \
@@ -39,24 +40,36 @@ postgresql_mdata() {
 
     if [[ ${PRIVATE_IP} ]]; then
       smartdc_info "got private IP"
-      sed -i "/^#listen_addresses/s/#listen_addresses.*/listen_addresses = '${PRIVATE_IP}'/" /etc/postgresql/9.4/main/postgresql.conf
-      echo "host    all             all             ${PRIVATE_IP}/32         password" >> /etc/postgresql/9.4/main/pg_hba.conf
+      sed -i \ 
+        "/^#listen_addresses/s/#listen_addresses.*/listen_addresses = '${PRIVATE_IP}'/" \
+        /etc/postgresql/9.4/main/postgresql.conf
+      echo "host    all             all             ${PRIVATE_IP}/32         password" >> \
+        /etc/postgresql/9.4/main/pg_hba.conf
     fi
   fi
 
   smartdc_info "tuning postgresql"
   SHARED_BUFFERS="$(( (${RAM_IN_BYTES} / 4) / 1024/1024 ))MB";
   EFFECTIVE_CACHE_SIZE="$(( (${RAM_IN_BYTES} / 4) / 1024/1024 ))MB";
-  [[ ${RAM_IN_BYTES} -ge "4294967296" ]] && CHECKPOINT_SEGMENTS="24" || CHECKPOINT_SEGMENTS="12";
-  [[ ${RAM_IN_BYTES} -ge "4294967296" ]] && MAX_CONNECTIONS="1000" || MAX_CONNECTIONS="500";
-  [[ ${RAM_IN_BYTES} -ge "4294967296" ]] && MAINTENANCE_WORK_MEM="64MB" || MAINTENANCE_WORK_MEM="16MB"
+  [[ ${RAM_IN_BYTES} -ge "4294967296" ]] \
+    && CHECKPOINT_SEGMENTS="24" || CHECKPOINT_SEGMENTS="12";
+  [[ ${RAM_IN_BYTES} -ge "4294967296" ]] \
+    && MAX_CONNECTIONS="1000" || MAX_CONNECTIONS="500";
+  [[ ${RAM_IN_BYTES} -ge "4294967296" ]] \
+    && MAINTENANCE_WORK_MEM="64MB" || MAINTENANCE_WORK_MEM="16MB"
 
-  sed -i "/^shared_buffers/s/shared_buffers.*/shared_buffers = ${SHARED_BUFFERS}/" /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#effective_cache_size/s/#effective_cache_size.*/effective_cache_size = ${EFFECTIVE_CACHE_SIZE}/" /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#checkpoint_segments/s/#checkpoint_segments.*/checkpoint_segments = ${CHECKPOINT_SEGMENTS}/" /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^max_connections/s/max_connections.*/max_connections = ${MAX_CONNECTIONS}/" /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#work_mem/s/#work_mem.*/work_mem = 1MB/" /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#maintenance_work_mem/s/#maintenance_work_mem.*/maintenance_work_mem = ${MAINTENANCE_WORK_MEM}/" /etc/postgresql/9.4/main/postgresql.conf
+  sed -i "/^shared_buffers/s/shared_buffers.*/shared_buffers = ${SHARED_BUFFERS}/" \
+    /etc/postgresql/9.4/main/postgresql.conf
+  sed -i "/^#effective_cache_size/s/#effective_cache_size.*/effective_cache_size = ${EFFECTIVE_CACHE_SIZE}/" \
+    /etc/postgresql/9.4/main/postgresql.conf
+  sed -i "/^#checkpoint_segments/s/#checkpoint_segments.*/checkpoint_segments = ${CHECKPOINT_SEGMENTS}/" \
+    /etc/postgresql/9.4/main/postgresql.conf
+  sed -i "/^max_connections/s/max_connections.*/max_connections = ${MAX_CONNECTIONS}/" \
+    /etc/postgresql/9.4/main/postgresql.conf
+  sed -i "/^#work_mem/s/#work_mem.*/work_mem = 1MB/" \
+    /etc/postgresql/9.4/main/postgresql.conf
+  sed -i "/^#maintenance_work_mem/s/#maintenance_work_mem.*/maintenance_work_mem = ${MAINTENANCE_WORK_MEM}/" \
+    /etc/postgresql/9.4/main/postgresql.conf
 
   smartdc_info "starting postgresql"
   service postgresql start
