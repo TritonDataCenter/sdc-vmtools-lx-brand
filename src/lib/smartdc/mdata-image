@@ -41,9 +41,11 @@ postgresql_mdata() {
     if [[ ${PRIVATE_IP} ]]; then
       smartdc_info "got private IP"
       sed -i \ 
-        "/^#listen_addresses/s/#listen_addresses.*/listen_addresses = '${PRIVATE_IP}'/" \
+        "/^#listen_addresses/s/#listen_addresses.*/listen_addresses \
+        = '${PRIVATE_IP}'/" \
         /etc/postgresql/9.4/main/postgresql.conf
-      echo "host    all             all             ${PRIVATE_IP}/32         password" >> \
+      echo "host    all             all             ${PRIVATE_IP}/32 \
+                password" >> \
         /etc/postgresql/9.4/main/pg_hba.conf
     fi
   fi
@@ -58,17 +60,27 @@ postgresql_mdata() {
   [[ ${RAM_IN_BYTES} -ge "4294967296" ]] \
     && MAINTENANCE_WORK_MEM="64MB" || MAINTENANCE_WORK_MEM="16MB"
 
-  sed -i "/^shared_buffers/s/shared_buffers.*/shared_buffers = ${SHARED_BUFFERS}/" \
+  sed -i "/^shared_buffers/s/shared_buffers.*/shared_buffers \
+    = ${SHARED_BUFFERS}/" \
     /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#effective_cache_size/s/#effective_cache_size.*/effective_cache_size = ${EFFECTIVE_CACHE_SIZE}/" \
+  sed -i \
+    "/^#effective_cache_size/s/#effective_cache_size.*/effective_cache_size \
+    = ${EFFECTIVE_CACHE_SIZE}/" \
     /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#checkpoint_segments/s/#checkpoint_segments.*/checkpoint_segments = ${CHECKPOINT_SEGMENTS}/" \
+  sed -i \
+    "/^#checkpoint_segments/s/#checkpoint_segments.*/checkpoint_segments \
+    = ${CHECKPOINT_SEGMENTS}/" \
     /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^max_connections/s/max_connections.*/max_connections = ${MAX_CONNECTIONS}/" \
+  sed -i \
+    "/^max_connections/s/max_connections.*/max_connections \
+    = ${MAX_CONNECTIONS}/" \
     /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#work_mem/s/#work_mem.*/work_mem = 1MB/" \
+  sed -i \
+    "/^#work_mem/s/#work_mem.*/work_mem = 1MB/" \
     /etc/postgresql/9.4/main/postgresql.conf
-  sed -i "/^#maintenance_work_mem/s/#maintenance_work_mem.*/maintenance_work_mem = ${MAINTENANCE_WORK_MEM}/" \
+  sed -i \
+    "/^#maintenance_work_mem/s/#maintenance_work_mem.*/maintenance_work_mem \
+    = ${MAINTENANCE_WORK_MEM}/" \
     /etc/postgresql/9.4/main/postgresql.conf
 
   smartdc_info "starting postgresql"
