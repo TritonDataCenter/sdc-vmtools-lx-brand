@@ -1,0 +1,12 @@
+[Unit]
+Description=Joyent specific setup
+ConditionPathExists=/lib/smartdc/joyent_rc.local
+
+[Service]
+Type=oneshot
+ExecStart=/lib/smartdc/joyent_rc.local
+TimeoutSec=0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
