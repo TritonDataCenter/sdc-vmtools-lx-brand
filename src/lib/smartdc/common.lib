@@ -3,24 +3,28 @@
 #
 # Common variables used by scripts in /lib/smartdc
 
-# location of binaries that functions use
+# location of binaries and files that functions use
 LOGGER=$(which logger 2> /dev/null)
+LOG='/var/log/sdc.log'
+touch $LOG
+exec 4<> $LOG
+export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+export BASH_XTRACEFD=4
+set -o xtrace
+
 
 MDATA_GET='/native/usr/sbin/mdata-get'
 
 # Common functions used by scripts /lib/smartdc
 
 smartdc_fatal() {
-  echo " "
-  printf "(fatal) %s\n" "$@"
-  echo " "
-  echo " "
+  echo "(fatal) - $0 - $@"
   $LOGGER "(fatal) - $0 - $@"
   exit 1
 }
 
 smartdc_info() {
-  printf "(info) %s\n" "$@"
+  echo "(info) - $0 - $@"
   $LOGGER "(info) - $0 - $@"
 }
 
