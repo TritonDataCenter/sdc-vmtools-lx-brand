@@ -7,7 +7,9 @@
 (/lib/smartdc/set-provision-state)
 (/lib/smartdc/mount-zfs)
 (/lib/smartdc/mdata-execute)
-
+[[ -e "/var/log/.mdata-image.run" ]] || \
+[[ -e "/tmp/.mdata-image.run" ]] || \
+ (/lib/smartdc/mdata-image)
 
 # XXX tmpfs?
 # XXX static routes
