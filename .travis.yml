@@ -8,8 +8,6 @@ before_install:
 script:
   - bash -n install.sh
   - bash -n $(find src -type f |grep -v .txt)
-  - tools/bashstyle install.sh
-  - tools/bashstyle $(find src -type f | grep -v .txt)
   - bats test/
 notifications:
   email:
