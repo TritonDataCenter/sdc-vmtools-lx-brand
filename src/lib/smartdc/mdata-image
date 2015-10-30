@@ -5,7 +5,7 @@
 # Execute metadata image scripts
 
 # load common functions and vars
-. ./lib/smartdc/common.lib
+. /lib/smartdc/common.lib
 
 postgresql_mdata() {
   smartdc_info "setting vm specific variables"
