@@ -17,6 +17,24 @@ if [[ ! -d /var/db ]]; then
   mkdir -p /var/db
 fi
 
+smartdc_info "Retrieving metadata sdc:hostname"
+
+$MDATA_GET sdc:hostname >/etc/hostname.new
+case $? in
+  0)
+    smartdc_info "Metadata sdc:hostname successfuly retrieved."
+    mv /etc/hostname{.new,}
+    smartdc_info "Setting hostname"
+    hostname $(cat /etc/hostname)
+    ;;
+  1)
+    smartdc_info "Metadata sdc:hostname not defined."
+    rm -f /etc/hostname.new
+    ;;
+  *)
+    smartdc_fatal "Metadata couldn't be retrieved."
+    ;;
+esac
 
 smartdc_info "Retrieving metadata user-data"
 

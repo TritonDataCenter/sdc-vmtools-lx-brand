@@ -6,3 +6,10 @@
 
 # load common functions and vars
 . /lib/smartdc/common.lib
+
+
+# Set hostname to value set in /etc/hostname
+# Ensures we get the hostname from meta data sdc:hostname if it was set.
+NEWHOSTNAME=$(cat /etc/hostname)
+
+sed -i '/HOSTNAME=/HOSTNAME=${NEWHOSTNAME}/g' /etc/sysconfig/network
