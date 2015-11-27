@@ -19,17 +19,16 @@ fi
 
 smartdc_info "Retrieving metadata sdc:hostname"
 
-$MDATA_GET sdc:hostname >/etc/hostname.new
+sdc_hostname=$($MDATA_GET sdc:hostname)
 case $? in
   0)
     smartdc_info "Metadata sdc:hostname successfuly retrieved."
-    mv /etc/hostname{.new,}
-    smartdc_info "Setting hostname"
-    hostname $(cat /etc/hostname)
+    smartdc_info "Setting hostname to $sdc_hostname"
+    echo $sdc_hostname > /etc/hostname
+    hostname $sdc_hostname
     ;;
   1)
     smartdc_info "Metadata sdc:hostname not defined."
-    rm -f /etc/hostname.new
     ;;
   *)
     smartdc_fatal "Metadata couldn't be retrieved."
