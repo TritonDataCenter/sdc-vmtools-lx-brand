@@ -5,7 +5,7 @@
 # Execute metadata image scripts
 
 # load common functions and vars
-. /lib/smartdc/common.lib
+. ./lib/smartdc/common.lib
 
 postgresql_mdata() {
   smartdc_info "setting vm specific variables"
@@ -27,7 +27,7 @@ postgresql_mdata() {
     [[ -d "/var/lib/postgresql/9.4/main" ]] && \
        mv /var/lib/postgresql/9.4/main /var/lib/postgresql/9.4/main.${DATE}
 
-    log "initializing PostgreSQL"
+    smartdc_info "initializing PostgreSQL"
     su - postgres -c "/usr/lib/postgresql/9.4/bin/initdb \
                   --pgdata=/var/lib/postgresql/9.4/main \
                   --encoding=UTF8 \
@@ -86,6 +86,66 @@ postgresql_mdata() {
   smartdc_info "starting postgresql"
   service postgresql start
 }
+mongodb_mdata() {
+  smartdc_info "setting vm specific variables"
+  PUBLIC_IP=$(mdata-get sdc:nics.0.ip 2>/dev/null);
+  PRIVATE_IP=$(mdata-get sdc:nics.1.ip 2>/dev/null);
+  RAM_IN_BYTES=$(echo "$(( $(mdata-get sdc:max_physical_memory)*1024*1024 ))")
+  DATE=$(date +%Y%m%d)
+
+  smartdc_info "stopping mongodb"
+  service mongod stop
+
+  smartdc_info "getting mongodb_password"
+  if [[ $(mdata-get mongodb_password &>/dev/null)$? -eq "0" ]]; then
+    MONGODB_PASSWORD=$(mdata-get mongodb_password 2>/dev/null);
+
+    smartdc_info "got mongodb_password, configuring mongodb";
+
+    # Start MongoDB
+    smartdc_info "starting the mongodb service"
+    service mongod start 
+
+    # Wait for MongoDB to start
+    smartdc_info "waiting for the socket to show up"
+    COUNT="0";
+    while [[ ! -e /tmp/mongodb-27017.sock ]]; do
+      sleep 1
+      ((COUNT=COUNT+1))
+      if [[ ${COUNT} -eq 60 ]]; then
+        smartdc_info "ERROR Could not talk to MongoDB after 60 seconds"
+        ERROR=yes
+        break 1
+      fi
+    done
+    [[ -n "${ERROR}" ]] && exit 31
+    smartdc_info "(it took ${COUNT} seconds to start properly)"
+    sleep 1
+
+    if [[ $(mongo 127.0.0.1/admin --eval="printjson(db.getCollectionNames())" &>/dev/null)$? -eq 0 ]]; then
+      smartdc_info "Setting the MongoDB admin password"
+
+      # Create admin user
+      mongo 127.0.0.1/admin --eval="db.createUser( { user: \"admin\", pwd: \"${MONGODB_PASSWORD}\", roles: [ \"root\" ] } )" 2>/dev/null || \
+      ( smartdc_info "ERROR MongoDB set admin pass failed to execute." && exit 31 );
+
+      # Configure MongoDB authentication
+      smartdc_info "putting auth in mongod.conf and starting mongodb"
+      echo "security.authorization: enabled" >> /etc/mongod.conf
+    else
+      smartdc_info "Couldn't login without password, continuing.";
+    fi
+  fi
+sleep 2;
+
+# Clear MongoDB log
+smartdc_info "clearing mongodb log"
+cat /dev/null > /var/log/mongodb/mongod.log
+
+# Start MongoDB
+smartdc_info "restarting mongodb"
+service mongod restart
+}
 
 IMAGE_NAME=$(grep "Image:" /etc/product | awk '{ print $2 }');
 
@@ -93,6 +153,10 @@ case ${IMAGE_NAME} in
   PostgreSQL)
     smartdc_info "PostgreSQL image found.";
     postgresql_mdata;
+    ;;
+  MongoDB)
+    smartdc_info "MongoDB image found.";
+    mongodb_mdata;
     ;;
   *)
     smartdc_info "Couldn't find image name.";
