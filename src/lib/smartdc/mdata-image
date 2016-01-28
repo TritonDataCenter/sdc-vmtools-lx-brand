@@ -7,13 +7,109 @@
 # load common functions and vars
 . /lib/smartdc/common.lib
 
-postgresql_mdata() {
+vm_mdata() {
   smartdc_info "setting vm specific variables"
   PUBLIC_IP=$(mdata-get sdc:nics.0.ip 2>/dev/null);
   PRIVATE_IP=$(mdata-get sdc:nics.1.ip 2>/dev/null);
-  RAM_IN_BYTES=$(echo "$(( $(mdata-get sdc:max_physical_memory)*1024*1024 ))")
-  DATE=$(date +%Y%m%d)
+  RAM_IN_BYTES=$(echo "$(( $(mdata-get sdc:max_physical_memory)*1024*1024 ))");
+  DATE=$(date +%Y_%m_%d_%S);
+}
+percona_mdata() {
+  smartdc_info "getting mysql_server_id"
+  if [[ $(mdata-get mysql_server_id &>/dev/null)$? -eq "0" ]]; then
+    MYSQL_SERVER_ID=$(mdata-get mysql_server_id 2>/dev/null);
+    sed -i "/^#server-id/s/#server-id.*/server-id = ${MYSQL_SERVER_ID}/" /etc/mysql/my.cnf
+  fi
 
+  # MySQL my.cnf tuning
+  MEMCAP=$(( ${RAM_IN_BYTES} / 1024 / 1024 ));
+
+  # innodb_buffer_pool_size
+  INNODB_BUFFER_POOL_SIZE=$(( ${MEMCAP} / 2 ));
+
+  # max_connections
+  [[ ${MEMCAP} -lt 1000 ]] && MAX_CONNECTIONS=200
+  [[ ${MEMCAP} -gt 1000 ]] && MAX_CONNECTIONS=500
+  [[ ${MEMCAP} -gt 2000 ]] && MAX_CONNECTIONS=1000
+  [[ ${MEMCAP} -gt 3000 ]] && MAX_CONNECTIONS=2000
+  [[ ${MEMCAP} -gt 5000 ]] && MAX_CONNECTIONS=5000
+
+  # table_cache
+  TABLE_CACHE=$((${MEMCAP}/4))
+  [[ ${TABLE_CACHE} -lt 256 ]] && TABLE_CACHE=256
+  [[ ${TABLE_CACHE} -gt 512 ]] && TABLE_CACHE=512
+
+  # thread_cache_size
+  THREAD_CACHE_SIZE=$((${MAX_CONNECTIONS}/2))
+  [[ ${THREAD_CACHE_SIZE} -gt 1000 ]] && THREAD_CACHE_SIZE=1000
+
+  smartdc_info "tuning MySQL configuration"
+  sed -i \
+      -e "s/#table_cache[[:space:]]*= 64/table_open_cache = ${TABLE_CACHE}/" \
+      -e "s/thread_cache_size[[:space:]]*= 8/thread_cache_size = ${THREAD_CACHE_SIZE}/" \
+      -e "s/#max_connections[[:space:]]*= 100/max_connections = ${MAX_CONNECTIONS}/" \
+      /etc/mysql/my.cnf
+    
+  sed -i "/#thread_concurrency/a innodb_buffer_pool_size = ${INNODB_BUFFER_POOL_SIZE}" /etc/mysql/my.cnf
+
+  smartdc_info "running mysql_install_db"
+  [[ -d "/var/lib/mysql" ]] && \
+    mv /var/lib/mysql /var/lib/mysql.${DATE}
+
+  mysql_install_db --datadir=/var/lib/mysql --user=mysql --skip-name-resolve --force    
+  chown -R mysql:mysql /var/lib/mysql
+
+  if [[ $(mdata-get mysql_password &>/dev/null)$? -eq "0" ]]; then
+    smartdc_info "getting mysql_password"
+    MYSQL_PASSWORD=$(mdata-get mysql_password 2>/dev/null);
+
+    smartdc_info "tuning bind-address"
+    sed -i \
+      -e "s/bind-address[[:space:]]*= 127.0.0.1/bind-address = ${PRIVATE_IP:-${PUBLIC_IP}}/" \
+      /etc/mysql/my.cnf
+
+    # Default query to lock down access and clean up
+    MYSQL_INIT="DELETE from mysql.user;
+    DELETE FROM mysql.proxies_priv WHERE Host='base.joyent.us';
+    GRANT ALL on *.* to 'root'@'localhost' identified by '${MYSQL_PASSWORD}' with grant option;
+    GRANT ALL on *.* to 'root'@'${PRIVATE_IP:-${PUBLIC_IP}}' identified by '${MYSQL_PASSWORD}' with grant option;
+    DROP DATABASE test;
+    DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+    FLUSH PRIVILEGES;"
+
+    smartdc_info "starting MySQL"
+    service mysql start
+
+    smartdc_info "waiting for the socket to show up"
+    COUNT="0";
+    while [[ ! -e /var/run/mysqld/mysqld.sock ]]; do
+      sleep 1
+      ((COUNT=COUNT+1))
+      if [[ $COUNT -eq 60 ]]; then
+        smartdc_info "ERROR Could not talk to MySQL after 60 seconds"
+        ERROR=yes
+        break 1
+      fi
+    done
+    [[ -n "${ERROR}" ]] && exit 31
+    smartdc_info "(it took ${COUNT} seconds to start properly)"
+
+    sleep 1;
+
+    smartdc_info "running the access lockdown SQL query"
+    if [[ $(mysql -uroot -e "select version()" &>/dev/null)$? -eq "0" ]]; then
+      mysql -u root -e "${MYSQL_INIT}" >/dev/null || ( smartdc_info "ERROR MySQL query failed to execute." && exit 31; )
+    else
+      smartdc_info "Can't login with no password set, continuing.";
+    fi
+  else
+    smartdc_info "starting MySQL"
+    service mysql start
+  fi
+  mv /etc/rc2.d/K19mysql /etc/rc2.d/S19mysql
+}
+
+postgresql_mdata() {
   smartdc_info "stopping postgresql"
   service postgresql stop
 
@@ -147,16 +243,23 @@ smartdc_info "restarting mongodb"
 service mongod restart
 }
 
-IMAGE_NAME=$(grep "Image:" /etc/product | awk '{ print $2 }');
+IMAGE_NAME=$(grep "^Image:" /etc/product | awk '{ print $2 }');
 
 case ${IMAGE_NAME} in
   PostgreSQL)
     smartdc_info "PostgreSQL image found.";
+    vm_mdata;
     postgresql_mdata;
     ;;
   MongoDB)
     smartdc_info "MongoDB image found.";
+    vm_mdata;
     mongodb_mdata;
+    ;;
+  Percona)
+    smartdc_info "Percona image found.";
+    vm_mdata;
+    percona_mdata;
     ;;
   *)
     smartdc_info "Couldn't find image name.";
