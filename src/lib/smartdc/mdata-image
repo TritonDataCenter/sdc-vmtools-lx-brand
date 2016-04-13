@@ -14,6 +14,94 @@ vm_mdata() {
   RAM_IN_BYTES=$(echo "$(( $(mdata-get sdc:max_physical_memory)*1024*1024 ))");
   DATE=$(date +%Y_%m_%d_%S);
 }
+nginx_mdata() {
+  smartdc_info "stopping nginx"
+  service nginx stop
+
+  smartdc_info "tuning nginx"
+  NGINX_CORES=$(nproc);
+  sed -i "s/worker_processes  1;/worker_processes ${NGINX_CORES};/g" /etc/nginx/nginx.conf
+  sed -i "s/worker_connections  1024;/worker_connections 2048;/g" /etc/nginx/nginx.conf
+
+  smartdc_info "enabling php for nginx"
+  sed -i "s/listen\.owner = www-data/listen\.owner = nginx/g" /etc/php5/fpm/pool.d/www.conf
+  sed -i "s/listen\.group = www-data/listen\.group = nginx/g" /etc/php5/fpm/pool.d/www.conf
+  sed -i "s/index  index\.html index\.htm/index index\.php index\.html index\.htm/g" /etc/nginx/conf.d/default.conf
+  sed -i '/# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000/a \
+        location ~ \\.php$ { \
+         root  /usr/share/nginx/html; \
+         fastcgi_index index.php; \
+         fastcgi_param  SCRIPT_FILENAME    \$document_root\$fastcgi_script_name; \
+         fastcgi_pass unix:/var/run/php5-fpm.sock; \
+         include fastcgi_params; \
+        }' /etc/nginx/conf.d/default.conf
+
+  smartdc_info "starting nginx and php5-fpm"
+  service nginx restart
+  service php5-fpm restart
+}
+couchbase_mdata() {
+  smartdc_info "getting couchbase_password"
+  if [[ $(mdata-get couchbase_password &>/dev/null)$? -eq "0" ]]; then
+    COUCHBASE_PASSWORD=$(mdata-get couchbase_password 2>/dev/null);
+  else
+    COUCHBASE_PASSWORD=$(od -An -N8 -x /dev/random | head -1 | tr -d ' ');
+    mdata-put couchbase_password ${COUCHBASE_PASSWORD}
+  fi
+
+  smartdc_info "installing couchbase server"
+  dpkg -i /root/couchbase-server.deb
+
+  COUCHBASE_BUCKET="mybucket";
+  COUCHBASE_MEMORY=$(echo "$(( $(mdata-get sdc:max_physical_memory) / 2 ))");
+  COUCHBASE_CPU=$(nproc);
+  COUCHBASE_CPU=$(($COUCHBASE_CPU>12?$(($COUCHBASE_MEMORY/3072)):$COUCHBASE_CPU));
+  COUCHBASE_CPU=$(($COUCHBASE_CPU>1?$COUCHBASE_CPU:1));
+
+  COUCHBASERESPONSIVE=0
+  while [ $COUCHBASERESPONSIVE != 1 ]; do
+    echo -n '.'
+
+    # test the default u/p
+    /opt/couchbase/bin/couchbase-cli server-info -c 127.0.0.1:8091 -u access -p password &> /dev/null
+    if [ $? -eq 0 ]; then
+        let COUCHBASERESPONSIVE=1
+    fi
+
+    # test the alternate u/p
+    /opt/couchbase/bin/couchbase-cli server-info -c 127.0.0.1:8091 -u Administrator -p password &> /dev/null
+    if [ $? -eq 0 ]; then
+        let COUCHBASERESPONSIVE=1
+        sleep .7
+    fi
+  done
+  sleep 2;
+
+  # initialize the node
+  /opt/couchbase/bin/couchbase-cli node-init -c 127.0.0.1:8091 -u access -p password --node-init-data-path=/opt/couchbase/var/lib/couchbase/data --node-init-index-path=/opt/couchbase/var/lib/couchbase/data --node-init-hostname=${PRIVATE_IP}
+
+  # initialize the cluster
+  /opt/couchbase/bin/couchbase-cli cluster-init -c 127.0.0.1:8091 -u access -p password --cluster-username=Administrator --cluster-password=${COUCHBASE_PASSWORD} --cluster-port=8091 --cluster-ramsize=${COUCHBASE_MEMORY} --services=data,index,query
+
+  # create the bucket
+  /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.01:8091 -u Administrator -p ${COUCHBASE_PASSWORD} \
+   --bucket=${COUCHBASE_BUCKET} \
+   --bucket-type=couchbase \
+   --bucket-ramsize=${COUCHBASE_MEMORY} \
+   --bucket-replica=1
+
+  # set the number of writers
+  /opt/couchbase/bin/cbepctl 127.0.0.1:11210 -b ${COUCHBASE_BUCKET} set flush_param max_num_writers $(($COUCHBASE_CPU>1?$COUCHBASE_CPU/2:1))
+  /opt/couchbase/bin/cbepctl 127.0.0.1:11210 -b ${COUCHBASE_BUCKET} set flush_param max_num_readers $(($COUCHBASE_CPU>1?$COUCHBASE_CPU/2:1))
+  /opt/couchbase/bin/cbepctl 127.0.0.1:11210 -b ${COUCHBASE_BUCKET} set flush_param max_num_auxio 1
+  /opt/couchbase/bin/cbepctl 127.0.0.1:11210 -b ${COUCHBASE_BUCKET} set flush_param max_num_nonio 1
+
+  rm /root/couchbase-server.deb
+
+  # setup PATHs
+  echo 'export PATH=$PATH:/opt/couchbase/bin' >> /root/.bashrc
+  echo 'export PATH=$PATH:/opt/couchbase/bin' >> /etc/skel/.bashrc
+}
 percona_mdata() {
   smartdc_info "getting mysql_server_id"
   if [[ $(mdata-get mysql_server_id &>/dev/null)$? -eq "0" ]]; then
@@ -241,6 +329,16 @@ case ${IMAGE_NAME} in
     smartdc_info "Percona image found.";
     vm_mdata;
     percona_mdata;
+    ;;
+  Couchbase)
+    smartdc_info "Couchbase image found.";
+    vm_mdata;
+    couchbase_mdata;
+    ;;
+  Nginx)
+    smartdc_info "Nginx image found.";
+    vm_mdata;
+    nginx_mdata;
     ;;
   *)
     smartdc_info "Couldn't find image name.";
