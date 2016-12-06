@@ -6,7 +6,9 @@
 # location of binaries and files that functions use
 LOGGER=$(which logger 2> /dev/null)
 LOG='/var/log/triton.log'
-touch $LOG
+if [[ ! -e $LOG ]]; then
+  touch $LOG
+fi
 exec 4<> $LOG
 export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 export BASH_XTRACEFD=4
