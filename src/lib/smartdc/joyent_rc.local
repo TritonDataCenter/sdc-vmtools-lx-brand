@@ -15,9 +15,6 @@ export BASH_XTRACEFD=4
 (/lib/smartdc/set-provision-state)
 (/lib/smartdc/mount-zfs)
 (/lib/smartdc/mdata-execute)
-[[ -e "/var/log/.mdata-image.run" ]] || \
-[[ -e "/tmp/.mdata-image.run" ]] || \
- (/lib/smartdc/mdata-image)
 
 # XXX tmpfs?
 # XXX static routes
@@ -39,5 +36,9 @@ case $(uname -s | tr '[:upper:]' '[:lower:]') in
     smartdc_info "WARNING: OS specific features not implemented"
     ;;
 esac
+
+[[ -e "/var/log/.mdata-image.run" ]] || \
+[[ -e "/tmp/.mdata-image.run" ]] || \
+ (/lib/smartdc/mdata-image)
 
 exit 0
