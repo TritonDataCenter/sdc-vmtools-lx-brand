@@ -10,9 +10,9 @@
 # Add ssh host keys if they are missing.
 # XXX This probably needs to just happen at first boot.
 keycount=$(find /etc/ssh -name 'ssh_host_*_key*' | wc -l)
-if [[ $keycount -eq 0 ]] ; then 
+if [[ $keycount -eq 0 ]] ; then
   smartdc_info "ssh_host keys missing. Regenerating..."
-  dpkg-reconfigure openssh-server
+  ssh-keygen -A
 fi
 
 exit 0
