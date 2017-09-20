@@ -97,6 +97,39 @@ install_redhat() {
   chmod 755 $INSTALL_DIR/etc/rc.d/rc.local
 }
 
+install_suse() {
+  # begin installing tools
+
+  info "Creating symlinks for binaries found in /native"
+
+  SYMLINKS=$(cat ./src/symlinks.txt)
+
+  # Note Values for ${binary} must be the full path
+  for binary in $SYMLINKS; do
+    if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
+      ln -s /native${binary} ${binary}
+    else
+      info "Binary ${binary} exits in installation. Skipping symlink creation."
+    fi
+  done
+
+  info "Copying native_manpath.sh to $INSTALL_DIR/etc/profile.d/"
+  cp ./src/etc/profile.d/native_manpath.sh $INSTALL_DIR/etc/profile.d/
+
+  info "Copying ./src/lib/smartdc to $INSTALL_DIR/lib/"
+  cp -r ./src/lib/smartdc $INSTALL_DIR/lib/
+
+  # done installing tools
+
+  cp ./src/etc/systemd/system/joyent.service \
+    $INSTALL_DIR/etc/systemd/system/joyent.service
+
+  # activate joyent systemd unit
+  # XXX do that via systemctl in the chroot?
+  ln -sf /etc/systemd/system/joyent.service \
+    $INSTALL_DIR/etc/systemd/system/multi-user.target.wants/joyent.service
+}
+
 install_alpine() {
   install_tools
 
@@ -134,6 +167,8 @@ case $OS in
   Linux)
     if [[ -f $INSTALL_DIR/etc/redhat-release ]] ; then
       install_redhat
+    elif [[ -f $INSTALL_DIR/etc/SuSE-release ]] ; then
+      install_suse
     elif [[ -f $INSTALL_DIR/etc/debian_version ]] ; then
       install_debian
     elif [[ -f $INSTALL_DIR/etc/alpine-release ]] ; then

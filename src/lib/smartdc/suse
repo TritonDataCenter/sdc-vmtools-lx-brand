@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2015, Joyent, Inc. All rights reserved.
+# Copyright (c) 2017, ASS Einrichtungssysteme GmbH, All rights reserved.
+#
+# SuSE Linux specific setup
+
+# load common functions and vars
+. /lib/smartdc/common.lib
