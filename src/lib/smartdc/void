@@ -11,5 +11,11 @@ if [[ ! -e /etc/resolv.conf ]]; then
     echo "nameserver $i" >> /etc/resolv.conf
   done
 fi
+# void attempts to write to `/proc/sys/kernel/hostname` which is currently
+# unsupported in LX zones.  Until that is supported, this logic will work to
+# set the hostname at boot.
+if [[ -f /etc/hostname ]]; then
+  hostname "$(cat /etc/hostname)"
+fi
 # load common functions and vars
 . /lib/smartdc/common.lib
