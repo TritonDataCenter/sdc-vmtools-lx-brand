@@ -66,7 +66,10 @@ install_tools() {
   # Note Values for ${binary} must be the full path
   for binary in $SYMLINKS; do
     if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
-      chroot $INSTALL_DIR ln -s /native${binary} ${binary}
+      #chroot $INSTALL_DIR ln -s /native${binary} ${binary}
+      # Force the creation of the symlink since we are in docker context and
+      # not a branded zone
+      ln -Fs /native${binary} ${binary}
     else
       info "Binary ${binary} exits in installation. Skipping symlink creation."
     fi
