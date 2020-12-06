@@ -58,7 +58,7 @@ if [[ ! -e "$INSTALL_DIR" ]] ; then
   exit 1
 fi
 
-install_tools() {
+install_symlinks() {
   info "Creating symlinks for binaries found in /native"
 
   SYMLINKS=$(cat ./src/symlinks.txt)
@@ -66,11 +66,16 @@ install_tools() {
   # Note Values for ${binary} must be the full path
   for binary in $SYMLINKS; do
     if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
-      chroot $INSTALL_DIR ln -s /native${binary} ${binary}
+      mkdir -p "$(dirname "$INSTALL_DIR${binary}")"
+      ln -s /native${binary} "$INSTALL_DIR${binary}"
     else
       info "Binary ${binary} exits in installation. Skipping symlink creation."
     fi
   done
+}
+
+install_tools() {
+  install_symlinks
 
   info "Copying native_manpath.sh to $INSTALL_DIR/etc/profile.d/"
   cp ./src/etc/profile.d/native_manpath.sh $INSTALL_DIR/etc/profile.d/
