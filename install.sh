@@ -142,6 +142,24 @@ install_arch() {
     $INSTALL_DIR/etc/systemd/system/multi-user.target.wants/joyent.service
 }
 
+install_gentoo() {
+  install_symlinks
+
+  info "Copying sdc-vmtools to $INSTALL_DIR/etc/env.d/"
+  mkdir -p "$INSTALL_DIR/etc/env.d/"
+  cp ./src/env.d/99sdc-vmtools "$INSTALL_DIR/etc/env.d/"
+
+  info "Copying ./src/lib/smartdc to $INSTALL_DIR/lib/"
+  mkdir -p "$INSTALL_DIR/lib/"
+  cp -r ./src/lib/smartdc "$INSTALL_DIR/lib/"
+
+  info "Installing sdc-init file to $INSTALL_DIR/etc/init.d/"
+  mkdir -p "$INSTALL_DIR/etc/init.d/"
+  cp ./src/etc/init.d/sdc-init "$INSTALL_DIR/etc/init.d/"
+  chmod +x "$INSTALL_DIR/etc/init.d/sdc-init"
+}
+
+
 ## MAIN ##
 
 OS=$(uname -s)
@@ -154,6 +172,8 @@ case $OS in
       install_debian
     elif [[ -f $INSTALL_DIR/etc/alpine-release ]] ; then
       install_alpine
+    elif [[ -f $INSTALL_DIR/etc/gentoo-release ]] ; then
+      install_gentoo
     elif [[ -f $INSTALL_DIR/etc/void-release ]] ; then
       install_void
     elif [[ -f $INSTALL_DIR/etc/arch-release ]] ; then
