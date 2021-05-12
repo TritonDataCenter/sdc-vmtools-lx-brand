@@ -58,7 +58,7 @@ if [[ ! -e "$INSTALL_DIR" ]] ; then
   exit 1
 fi
 
-install_symlinks() {
+install_tools() {
   info "Creating symlinks for binaries found in /native"
 
   SYMLINKS=$(cat ./src/symlinks.txt)
@@ -66,16 +66,11 @@ install_symlinks() {
   # Note Values for ${binary} must be the full path
   for binary in $SYMLINKS; do
     if [[ ! -e $INSTALL_DIR${binary} && ! -L $INSTALL_DIR${binary} ]]; then
-      mkdir -p "$(dirname "$INSTALL_DIR${binary}")"
-      ln -s /native${binary} "$INSTALL_DIR${binary}"
+      chroot $INSTALL_DIR ln -s /native${binary} ${binary}
     else
       info "Binary ${binary} exits in installation. Skipping symlink creation."
     fi
   done
-}
-
-install_tools() {
-  install_symlinks
 
   info "Copying native_manpath.sh to $INSTALL_DIR/etc/profile.d/"
   cp ./src/etc/profile.d/native_manpath.sh $INSTALL_DIR/etc/profile.d/
@@ -142,24 +137,6 @@ install_arch() {
     $INSTALL_DIR/etc/systemd/system/multi-user.target.wants/joyent.service
 }
 
-install_gentoo() {
-  install_symlinks
-
-  info "Copying sdc-vmtools to $INSTALL_DIR/etc/env.d/"
-  mkdir -p "$INSTALL_DIR/etc/env.d/"
-  cp ./src/env.d/99sdc-vmtools "$INSTALL_DIR/etc/env.d/"
-
-  info "Copying ./src/lib/smartdc to $INSTALL_DIR/lib/"
-  mkdir -p "$INSTALL_DIR/lib/"
-  cp -r ./src/lib/smartdc "$INSTALL_DIR/lib/"
-
-  info "Installing sdc-init file to $INSTALL_DIR/etc/init.d/"
-  mkdir -p "$INSTALL_DIR/etc/init.d/"
-  cp ./src/etc/init.d/sdc-init "$INSTALL_DIR/etc/init.d/"
-  chmod +x "$INSTALL_DIR/etc/init.d/sdc-init"
-}
-
-
 ## MAIN ##
 
 OS=$(uname -s)
@@ -172,8 +149,6 @@ case $OS in
       install_debian
     elif [[ -f $INSTALL_DIR/etc/alpine-release ]] ; then
       install_alpine
-    elif [[ -f $INSTALL_DIR/etc/gentoo-release ]] ; then
-      install_gentoo
     elif [[ -f $INSTALL_DIR/etc/void-release ]] ; then
       install_void
     elif [[ -f $INSTALL_DIR/etc/arch-release ]] ; then
