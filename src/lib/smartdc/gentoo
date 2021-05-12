@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# Copyright 2020 Joyent, Inc.
+#
+# Gentoo specific setup
+#
+
+# load common functions and vars
+. /lib/smartdc/common.lib
+
+#  Configure resolv.conf  if not set
+/lib/smartdc/generate-resolv
